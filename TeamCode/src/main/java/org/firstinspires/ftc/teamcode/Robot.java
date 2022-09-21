@@ -9,7 +9,7 @@ public interface Robot {
     double[] servoPositions = {1.0, 0.0};
     ArrayList<String> servoPositionNames = new ArrayList<>(Arrays.asList("Pick Up", "Release"));
 
-    int[] armPositions = {200, 850, 950, 1300};
+    double[] armPositions = {200, 850, 950, 1300}; //HAS TO BE DOUBLE[]
     ArrayList<String> armPositionNames = new ArrayList<>(Arrays.asList("Reset_Arm", "Low_Goal", "Middle_Goal", "High_Goal"));
 
     double[][] shipping_area = {{0, 0}, {20, 0}, {20, 20}, {0, 20}};

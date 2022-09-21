@@ -106,9 +106,9 @@ public class Logic_Base implements Robot {
         update_button(gamepad2.left_bumper, "operator left_bumper");
         update_button(gamepad2.right_bumper, "operator right_bumper");
         update_axis(gamepad2.left_stick_x, "operator left_stick_x");
-        update_axis(gamepad2.left_stick_y, "operator left_stick_y");
+        update_axis(0 - gamepad2.left_stick_y, "operator left_stick_y");
         update_axis(gamepad2.right_stick_x, "operator right_stick_x");
-        update_axis(gamepad2.right_stick_y, "operator right_stick_y");
+        update_axis(0 - gamepad2.right_stick_y, "operator right_stick_y");
         update_axis(gamepad2.left_trigger, "operator left_trigger");
         update_axis(gamepad2.right_trigger, "operator right_trigger");
     }
@@ -117,161 +117,138 @@ public class Logic_Base implements Robot {
         for (Map.Entry<String, ArrayList<Object>> element : keybinds.entrySet()) { //for every element in keybinds
 
             ArrayList<Object> object_keys = element.getValue(); //object_keys = what the motor maps to
+
             int number_of_keys = object_keys.size() / 4; //number of keys that map to the motor
             boolean object_is_active = false; //object is active iff at least one key that maps to it is activated
-            int temp_0;
-            int temp_1;
-            int temp_2;
-            int temp_3;
-            double temp_4;
-            boolean increasing;
+
+            boolean isDcMotor;
+            int key_index;
+
+            int general_list_index; //temp 1
+            int specific_list_index; //temp 2 - ONLY for setting position/power of servos/DC Motors
 
             for (int i = 0; i < number_of_keys; i++) { //for every key that maps to the button
-                temp_0 = keys.indexOf((String) object_keys.get(4 * i));
-                object_is_active = ((object_is_active) || ((temp_0 < 20) && (buttons[temp_0])) || ((temp_0 > 19) && (Math.abs(axes[temp_0 - 20]) > 0.1)));
+                key_index = keys.indexOf((String) object_keys.get(4 * i));
+                object_is_active = ((object_is_active) || ((key_index < 20) && (buttons[key_index])) || ((key_index > 19) && (Math.abs(axes[key_index - 20]) > 0.1)));
             }
 
-            if (dc_motor_names.contains(element.getKey())) { //if it's a dc motor
+            if ((dc_motor_names.contains(element.getKey())) || (servo_names.contains(element.getKey()))) { //if it's a dc motor
 
-                temp_1 = dc_motor_names.indexOf(element.getKey()); //temp_1 = where the index is everywhere - it's all on the same naming system
+                isDcMotor = dc_motor_names.contains(element.getKey()); 
 
-                if (!object_is_active) { //if we aren't pressing any relevant buttons
-                    times_started[temp_1] = -10.0; //reset it and make sure its staying where we want it to
-                    robot.dc_motor_list[temp_1].setPower(Math.max(min_power[temp_1], Math.min((target_positions[temp_1] - robot.dc_motor_list[temp_1].getCurrentPosition()) * 0.01, max_power[temp_1])));
+                if (isDcMotor) {
+                    general_list_index = dc_motor_names.indexOf(element.getKey());
+                    specific_list_index = dc_motor_names.indexOf(element.getKey());
                 } else {
-
-                    if (times_started[temp_1] < 0) //if we're on and it's reset, un-reset it
-                        times_started[temp_1] = (double) System.nanoTime() / 1000000000.0;
-
-                    for (int i = 0; i < number_of_keys; i++) { //4 * i: button name; +1: button/default/toggle;
-                        //+2: normal/gradient /  how much do we increase / power on way up
-                        //+3: maximum power / position list / power on way down
-
-                        temp_0 = keys.indexOf((String) object_keys.get(4 * i)); //where button is in list of keys; < 20 -> button, >= 20 -> axis
-
-                        if ((temp_0 < 20 && buttons[temp_0]) || (temp_0 > 19 && Math.abs(axes[temp_0 - 20]) > 0.1)) {
-                            if ((((String) object_keys.get(4 * i + 1)).equals("button")) || (((String) object_keys.get(4 * i + 1)).equals("cycle"))) { //4 * i + 2: what we change by; 4 * i + 3: positions
-                                if (((int[]) object_keys.get(4 * i + 3)).length == 1) {
-                                    target_positions[temp_1] = ((int[]) object_keys.get(4 * i + 3))[0];
-                                } else {
-                                    increasing = (((int[]) object_keys.get(4 * i + 3))[1] > ((int[]) object_keys.get(4 * i + 3))[0]);
-                                    temp_3 = 0;
-                                    while ((temp_3 < ((int[]) object_keys.get(4 * i + 3)).length) && ((((int[]) object_keys.get(4 * i + 3))[temp_3] < target_positions[temp_1]) || (!increasing)) && ((((int[]) object_keys.get(4 * i + 3))[temp_3] > target_positions[temp_1]) || (increasing))) {
-                                        temp_3 += 1; //note it stops perfectly if it's equal, it lands one past if it skips over value
-                                        //if increasing, then increase while index is less
-                                    }
-                                    if (((int) object_keys.get(4 * i + 2) > 0) && ((temp_3 + 1 > ((int[]) object_keys.get(4 * i + 3)).length)  || ((double) (((int[]) object_keys.get(4 * i + 3))[temp_3]) != target_positions[temp_1]))) {
-                                        temp_3 -= 1; //subtract one if we're going up
-                                    }
-                                    if (((String) object_keys.get(4 * i + 1)).equals("cycle")) {
-                                        if ((temp_3 + 2 > ((int[]) object_keys.get(4 * i + 3)).length) && ((int) object_keys.get(4 * i + 2) > 0)) {
-                                            temp_3 = 0;
-                                        } else if ((temp_3 < 1) && ((int) object_keys.get(4 * i + 2) < 0)) {
-                                            temp_3 = ((int[]) object_keys.get(4 * i + 3)).length - 1;
-                                        } else {
-                                            temp_3 = Math.max(0, Math.min(temp_3 + (int) object_keys.get(4 * i + 2), ((int[]) object_keys.get(4 * i + 3)).length - 1));
-                                        }
-                                    } else {
-                                        temp_3 = Math.max(0, Math.min(temp_3 + (int) object_keys.get(4 * i + 2), ((int[]) object_keys.get(4 * i + 3)).length - 1));
-                                    }
-                                    target_positions[temp_1] = ((int[]) object_keys.get(4 * i + 3))[temp_3]; //change the target position
-                                }
-                            } else {
-                                if ((((String) object_keys.get(4 * i + 1)).equals("toggle")) || temp_0 < 20) {
-                                    temp_4 = ((double) object_keys.get(4 * i + 3)) * (
-                                            ((String) object_keys.get(4 * i + 2)).equals("normal") ? 1 : Math.min(1, ((double) System.nanoTime() / 1000000000.0 - times_started[temp_1]) / 0.75)
-                                    );
-                                } else {
-                                    temp_4 = axes[temp_0 - 20] * ( //similar to button defaults, except no gradient option
-                                            (temp_0 > 23) ? (double) object_keys.get(4 * i + 2) : //if it's a trigger, then set it to the first val
-                                                    (temp_0 < 22) ? (axes[temp_0 - 20] < 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3)) : //it's x
-                                                            -1 * (axes[temp_0 - 20] > 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3)) //else it's a y
-                                    );
-                                }
-                                if ((robot.dc_motor_list[temp_1].getCurrentPosition() > motor_max_positions[temp_1]) && (temp_4 > 0)) {
-                                    temp_4 = Math.max(min_power[temp_1], (motor_max_positions[temp_1] - robot.dc_motor_list[temp_1].getCurrentPosition()) * 0.01);
-                                } else if (robot.dc_motor_list[temp_1].getCurrentPosition() < motor_min_positions[temp_1] && (temp_4 < 0)) {
-                                    temp_4 = Math.min((motor_min_positions[temp_1] - robot.dc_motor_list[temp_1].getCurrentPosition()) * 0.01, max_power[temp_1]);
-                                }
-                                robot.dc_motor_list[temp_1].setPower(temp_4);
-                                target_positions[temp_1] = Math.min(Math.max(robot.dc_motor_list[temp_1].getCurrentPosition(), motor_min_positions[temp_1]), motor_max_positions[temp_1]); //only update target position if we're moving - don't update if we are not
-                            }
-                        }
-                    }
+                    general_list_index = servo_names.indexOf(element.getKey()) + dc_motor_names.size();
+                    specific_list_index = servo_names.indexOf(element.getKey());
                 }
 
-            } else if (servo_names.contains(element.getKey())) { //servo
+                if (!object_is_active) { //if we aren't pressing any relevant buttons
 
-                temp_1 = servo_names.indexOf(element.getKey()) + dc_motor_names.size();
-                temp_2 = servo_names.indexOf(element.getKey()); //for servos, theres 2 different things:
-                //temp_2 used for getting/setting position of servo, temp_1 for everything else
+                    times_started[general_list_index] = -10.0; //reset it and make sure its staying where we want it to
 
-                if (!object_is_active) {
-                    times_started[temp_1] = -10.0;
-                    robot.servo_list[temp_2].setPosition(target_positions[temp_1]);
-                    //make sure its staying where we want it to, and update the starting position (don't update starting position if the servo should be moving, obviously)
-                    starting_positions[temp_1] = target_positions[temp_1];
+                    if (isDcMotor) {
+                        robot.dc_motor_list[specific_list_index].setPower(Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], (target_positions[general_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01)));
+                    } else {
+                        robot.servo_list[specific_list_index].setPosition(target_positions[general_list_index]);
+                        //make sure its staying where we want it to, and update the starting position (don't update starting position if the servo should be moving, obviously)
+                        starting_positions[general_list_index] = target_positions[general_list_index];
+                    }
+                    
                 } else {
 
-                    if (times_started[temp_1] < 0) { //un-reset it
-                        times_started[temp_1] = (double) System.nanoTime() / 1000000000.0;
-                    }
+                    if (times_started[general_list_index] < 0) //if we're on and it's reset, un-reset it
+                        times_started[general_list_index] = (double) System.nanoTime() / 1000000000.0;
 
-                    for (int i = 0; i < number_of_keys; i++) { //for each one in the map
+                    for (int i = 0; i < number_of_keys; i++) { 
+                        //4 * i: button name; 
+                        //+1: button/default/toggle;
+                        //+2: normal/gradient / how much do we increase / power on way up
+                        //+3: maximum power / position list / power on way down
 
-                        temp_0 = keys.indexOf((String) object_keys.get(4 * i));
+                        key_index = keys.indexOf((String) object_keys.get(4 * i)); //where button is in list of keys; < 20 -> button, >= 20 -> axis
+                        String type = (String) object_keys.get(4 * i + 1);
 
-                        if ((temp_0 < 20 && buttons[temp_0]) || (temp_0 > 19 && Math.abs(axes[temp_0 - 20]) > 0.1)) {
-                            if ((((String) object_keys.get(4 * i + 1)).equals("button")) || (((String) object_keys.get(4 * i + 1)).equals("cycle"))) {
-                                if (((double[]) object_keys.get(4 * i + 3)).length == 1) {
-                                    robot.servo_list[temp_2].setPosition(((double[]) object_keys.get(4 * i + 3))[0]);
+                        if ((key_index < 20 && buttons[key_index]) || (key_index > 19 && Math.abs(axes[key_index - 20]) > 0.1)) {
+                            if ((type.equals("button")) || (type.equals("cycle"))) { //4 * i + 2: what we change by; 4 * i + 3: positions
+
+                                double[] positions = ((double[]) object_keys.get(4 * i + 3));
+                                int delta = (int) object_keys.get(4 * i + 2);
+
+                                if (positions.length == 1) {
+                                    target_positions[general_list_index] = positions[0];
                                 } else {
-                                    increasing = (((double[]) object_keys.get(4 * i + 3))[1] > ((double[]) object_keys.get(4 * i + 3))[0]);
-                                    temp_3 = 0;
-                                    while ((temp_3 < ((double[]) object_keys.get(4 * i + 3)).length) && ((((double[]) object_keys.get(4 * i + 3))[temp_3] < target_positions[temp_1]) || (!increasing)) && ((((double[]) object_keys.get(4 * i + 3))[temp_3] > target_positions[temp_1]) || (increasing))) {
-                                        temp_3 += 1; //note it stops perfectly if it's equal, it lands one past if it skips over value
+                                    boolean increasing = (positions[1] > positions[0]);
+                                    int current_index = 0;
+                                    while ((current_index < positions.length) && ((positions[current_index] < target_positions[general_list_index]) || (!increasing)) && ((positions[current_index] > target_positions[general_list_index]) || (increasing))) {
+                                        current_index += 1; //note it stops perfectly if it's equal, it lands one past if it skips over value
                                         //if increasing, then increase while index is less
                                     }
-                                    if (((int) object_keys.get(4 * i + 2) > 0) && ((temp_3 + 1 > ((double[]) object_keys.get(4 * i + 3)).length) || (((double[]) object_keys.get(4 * i + 3))[temp_3] != target_positions[temp_1]))) {
-                                        temp_3 -= 1; //subtract one if we're going up
+                                    if ((delta > 0) && ((current_index + 1 > positions.length)  || (positions[current_index] != target_positions[key_index]))) {
+                                        current_index -= 1; //subtract one if we're going up
                                     }
-                                    if (((String) object_keys.get(4 * i + 1)).equals("cycle")) {
-                                        if ((temp_3 + 2 > ((double[]) object_keys.get(4 * i + 3)).length) && ((int) object_keys.get(4 * i + 2) > 0)) {
-                                            temp_3 = 0;
-                                        } else if ((temp_3 < 1) && ((int) object_keys.get(4 * i + 2) < 0)) {
-                                            temp_3 = ((double[]) object_keys.get(4 * i + 3)).length - 1;
+                                    if (type.equals("cycle")) {
+                                        if ((current_index + 2 > positions.length) && (delta > 0)) {
+                                            current_index = 0;
+                                        } else if ((current_index < 1) && (delta < 0)) {
+                                            current_index = positions.length - 1;
                                         } else {
-                                            temp_3 = Math.max(0, Math.min(temp_3 + (int) object_keys.get(4 * i + 2), ((double[]) object_keys.get(4 * i + 3)).length - 1));
+                                            current_index = Math.max(0, Math.min(current_index + delta, positions.length - 1));
                                         }
                                     } else {
-                                        temp_3 = Math.max(0, Math.min(temp_3 + (int) object_keys.get(4 * i + 2), ((double[]) object_keys.get(4 * i + 3)).length - 1));
+                                        current_index = Math.max(0, Math.min(current_index + delta, positions.length - 1));
                                     }
-                                    robot.servo_list[temp_2].setPosition(((double[]) object_keys.get(4 * i + 3))[temp_3]); //change the target position
+                                    target_positions[general_list_index] = positions[current_index]; //change the target position
                                 }
-                            } else if ((((String) object_keys.get(4 * i + 1)).equals("toggle")) || temp_0 < 20) {
-                                robot.servo_list[temp_2].setPosition(Math.max(servo_min_positions[temp_2], Math.min(servo_max_positions[temp_2], //we don't have gradients because that's pointless to add; we have to assign position
-                                        starting_positions[temp_1] + (double) object_keys.get(4 * i + 2) * ((double) System.nanoTime() / 1000000000.0 - times_started[temp_1])
-                                )));                   //position: initial position (remember, it stopped updating when we started moving) + speed * time
+
                             } else {
-                                robot.servo_list[temp_2].setPosition(Math.max(servo_min_positions[temp_2], Math.min(servo_max_positions[temp_2],
-                                        robot.servo_list[temp_2].getPosition() + //the expression below is seconds/tick, basically; current pos + seconds/tick * depth * angles/second
-                                                ((double) System.nanoTime() / 1000000000.0 - times_started[temp_1]) * axes[temp_0 - 20] * (
-                                                        (temp_0 > 23) ? (double) object_keys.get(4 * i + 2) : //if it's a trigger, then set it to the first val
-                                                                (temp_0 < 22) ? (axes[temp_0 - 20] < 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3)) : //it's x
-                                                                        -1 * (axes[temp_0 - 20] > 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3)) //else it's a y
-                                                ))));
-                                times_started[temp_1] = (double) System.nanoTime() / 1000000000.0;
+                                if (isDcMotor) {
+                                    target_positions[general_list_index] = Math.max(Math.min(robot.dc_motor_list[specific_list_index].getCurrentPosition(),
+                                        motor_max_positions[specific_list_index]), motor_min_positions[specific_list_index]);
+
+                                    double calculated_power;
+
+                                    if ((type.equals("toggle")) || key_index < 20) {
+                                        calculated_power = ((double) object_keys.get(4 * i + 3)) * (((String) object_keys.get(4 * i + 2)).equals("normal") ? 1.0 : Math.min(1, ((double) System.nanoTime() / 1000000000.0 - times_started[general_list_index]) / 0.75));
+                                    } else {
+                                        calculated_power = axes[key_index - 20] * ( //similar to button defaults, except no gradient option
+                                                (key_index > 23) ? (double) object_keys.get(4 * i + 2) : //if it's a trigger, then set it to the first val
+                                                (axes[key_index - 20] < 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3))
+                                        );
+                                    }
+
+                                    calculated_power = Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], calculated_power));
+                                    if ((robot.dc_motor_list[specific_list_index].getCurrentPosition() > motor_max_positions[specific_list_index]) && (calculated_power > 0)) {
+                                        calculated_power = Math.max(min_power[specific_list_index], (motor_max_positions[specific_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01);
+                                    } else if (robot.dc_motor_list[specific_list_index].getCurrentPosition() < motor_min_positions[specific_list_index] && (calculated_power < 0)) {
+                                        calculated_power = Math.min((motor_min_positions[specific_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01, max_power[specific_list_index]);
+                                    }
+                                    robot.dc_motor_list[specific_list_index].setPower(calculated_power);
+                                } else {
+                                    if ((type.equals("toggle")) || key_index < 20) {
+                                        target_positions[general_list_index] = starting_positions[general_list_index] + (double) object_keys.get(4 * i + 2) * ((double) System.nanoTime() / 1000000000.0 - times_started[general_list_index]);
+                                    } else {
+                                        target_positions[general_list_index] += //the expression below is seconds/tick, basically; current pos + seconds/tick * depth * angles/second
+                                            ((double) System.nanoTime() / 1000000000.0 - times_started[general_list_index]) * axes[key_index - 20] * (
+                                                (key_index > 23) ? (double) object_keys.get(4 * i + 2) : //if it's a trigger, then set it to the first val
+                                                (axes[key_index - 20] < 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3))
+                                            );
+                                        times_started[general_list_index] = (double) System.nanoTime() / 1000000000.0;
+                                    }
+                                    target_positions[general_list_index] = Math.max(servo_min_positions[specific_list_index], Math.min(servo_max_positions[specific_list_index], target_positions[general_list_index]));
+                                    robot.servo_list[specific_list_index].setPosition(target_positions[general_list_index]);
+                                }
                             }
                         }
                     }
-                    target_positions[temp_1] = robot.servo_list[temp_2].getPosition(); //has to be after for servos
                 }
             } else {
                 for (int i = 0; i < number_of_keys; i++) {
 
-                    temp_0 = keys.indexOf((String) object_keys.get(4 * i)); //where button is in list of keys; < 20 -> button, >= 20 -> axis
+                    key_index = keys.indexOf((String) object_keys.get(4 * i)); //where button is in list of keys; < 20 -> button, >= 20 -> axis
 
-                    if ((temp_0 < 20 && buttons[temp_0]) || (temp_0 > 19 && Math.abs(axes[temp_0 - 20]) > 0.1)) {
+                    if ((key_index < 20 && buttons[key_index]) || (key_index > 19 && Math.abs(axes[key_index - 20]) > 0.1)) {
                         target_x = (double) object_keys.get(4 * i + 1);
                         target_y = (double) object_keys.get(4 * i + 2);
                         try {
@@ -433,18 +410,10 @@ public class Logic_Base implements Robot {
                 } catch(ClassCastException e) {
                     throw new IllegalArgumentException("Increments have to be by an integer amount. Error was on key " + button + ". ");
                 }
-                if (servo_names.contains(motor)) {
-                    try {
-                        temp2 = (double[]) modifier3;
-                    } catch(ClassCastException e) {
-                        throw new IllegalArgumentException("For servos, the list has to be one of doubles. Error was on key " + button + ". ");
-                    }
-                } else {
-                    try {
-                        temp2 = (int[]) modifier3;
-                    } catch(ClassCastException e) {
-                        throw new IllegalArgumentException("For dc motors, the list has to be one of integers. Error was on key " + button + ". ");
-                    }
+                try {
+                    temp2 = (double[]) modifier3;
+                } catch(ClassCastException e) {
+                    throw new IllegalArgumentException("The positions list has to be one of doubles, even if it's a dc motor positions list. Error was on key " + button + ". ");
                 }
             } else if (((String) modifier1).equals("toggle") || ((String) modifier1).equals("default")) {
                 if (((String) modifier1).equals("default") && (keys.indexOf((String) button) > 19)) {
