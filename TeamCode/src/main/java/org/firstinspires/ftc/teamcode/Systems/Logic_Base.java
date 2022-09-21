@@ -22,9 +22,9 @@ public class Logic_Base implements Robot {
     public double[] target_positions = new double[dc_motor_names.size() + servo_names.size()];
     public double[] starting_positions = new double[dc_motor_names.size() + servo_names.size()]; //never use for dc_motors
 
-    public int[] key_values = new int[27];
-    public boolean[] buttons = new boolean[20];
-    public double[] axes = new double[7];
+    public int[] key_values = new int[27]; //number of times button/axis is "activated"
+    public boolean[] buttons = new boolean[20]; //value of button (True or False)
+    public double[] axes = new double[7]; //value of axis (1 for buttons/cycles, -1.0 to 1.0 for everything else)
 
     public double current_x = 0;
     public double current_y = 0;
@@ -106,7 +106,7 @@ public class Logic_Base implements Robot {
         update_button(gamepad2.left_bumper, "operator left_bumper");
         update_button(gamepad2.right_bumper, "operator right_bumper");
         update_axis(gamepad2.left_stick_x, "operator left_stick_x");
-        update_axis(0 - gamepad2.left_stick_y, "operator left_stick_y");
+        update_axis(0 - gamepad2.left_stick_y, "operator left_stick_y"); //negative because down means positive for FTC controllers
         update_axis(gamepad2.right_stick_x, "operator right_stick_x");
         update_axis(0 - gamepad2.right_stick_y, "operator right_stick_y");
         update_axis(gamepad2.left_trigger, "operator left_trigger");
@@ -124,17 +124,17 @@ public class Logic_Base implements Robot {
             boolean isDcMotor;
             int key_index;
 
-            int general_list_index; //temp 1
-            int specific_list_index; //temp 2 - ONLY for setting position/power of servos/DC Motors
-
-            for (int i = 0; i < number_of_keys; i++) { //for every key that maps to the button
+            for (int i = 0; i < number_of_keys; i++) {
                 key_index = keys.indexOf((String) object_keys.get(4 * i));
                 object_is_active = ((object_is_active) || ((key_index < 20) && (buttons[key_index])) || ((key_index > 19) && (Math.abs(axes[key_index - 20]) > 0.1)));
             }
 
-            if ((dc_motor_names.contains(element.getKey())) || (servo_names.contains(element.getKey()))) { //if it's a dc motor
+            if ((dc_motor_names.contains(element.getKey())) || (servo_names.contains(element.getKey()))) {
 
-                isDcMotor = dc_motor_names.contains(element.getKey()); 
+                isDcMotor = dc_motor_names.contains(element.getKey());
+
+                int general_list_index;
+                int specific_list_index;
 
                 if (isDcMotor) {
                     general_list_index = dc_motor_names.indexOf(element.getKey());
@@ -146,13 +146,12 @@ public class Logic_Base implements Robot {
 
                 if (!object_is_active) { //if we aren't pressing any relevant buttons
 
-                    times_started[general_list_index] = -10.0; //reset it and make sure its staying where we want it to
+                    times_started[general_list_index] = -10.0;
 
                     if (isDcMotor) {
                         robot.dc_motor_list[specific_list_index].setPower(Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], (target_positions[general_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01)));
                     } else {
                         robot.servo_list[specific_list_index].setPosition(target_positions[general_list_index]);
-                        //make sure its staying where we want it to, and update the starting position (don't update starting position if the servo should be moving, obviously)
                         starting_positions[general_list_index] = target_positions[general_list_index];
                     }
                     
@@ -161,20 +160,16 @@ public class Logic_Base implements Robot {
                     if (times_started[general_list_index] < 0) //if we're on and it's reset, un-reset it
                         times_started[general_list_index] = (double) System.nanoTime() / 1000000000.0;
 
-                    for (int i = 0; i < number_of_keys; i++) { 
-                        //4 * i: button name; 
-                        //+1: button/default/toggle;
-                        //+2: normal/gradient / how much do we increase / power on way up
-                        //+3: maximum power / position list / power on way down
+                    for (int i = 0; i < number_of_keys; i++) {
 
                         key_index = keys.indexOf((String) object_keys.get(4 * i)); //where button is in list of keys; < 20 -> button, >= 20 -> axis
                         String type = (String) object_keys.get(4 * i + 1);
 
                         if ((key_index < 20 && buttons[key_index]) || (key_index > 19 && Math.abs(axes[key_index - 20]) > 0.1)) {
-                            if ((type.equals("button")) || (type.equals("cycle"))) { //4 * i + 2: what we change by; 4 * i + 3: positions
+                            if ((type.equals("button")) || (type.equals("cycle"))) {
 
-                                double[] positions = ((double[]) object_keys.get(4 * i + 3));
                                 int delta = (int) object_keys.get(4 * i + 2);
+                                double[] positions = (double[]) object_keys.get(4 * i + 3);
 
                                 if (positions.length == 1) {
                                     target_positions[general_list_index] = positions[0];
@@ -182,11 +177,10 @@ public class Logic_Base implements Robot {
                                     boolean increasing = (positions[1] > positions[0]);
                                     int current_index = 0;
                                     while ((current_index < positions.length) && ((positions[current_index] < target_positions[general_list_index]) || (!increasing)) && ((positions[current_index] > target_positions[general_list_index]) || (increasing))) {
-                                        current_index += 1; //note it stops perfectly if it's equal, it lands one past if it skips over value
-                                        //if increasing, then increase while index is less
+                                        current_index += 1;
                                     }
                                     if ((delta > 0) && ((current_index + 1 > positions.length)  || (positions[current_index] != target_positions[key_index]))) {
-                                        current_index -= 1; //subtract one if we're going up
+                                        current_index -= 1;
                                     }
                                     if (type.equals("cycle")) {
                                         if ((current_index + 2 > positions.length) && (delta > 0)) {
@@ -201,7 +195,6 @@ public class Logic_Base implements Robot {
                                     }
                                     target_positions[general_list_index] = positions[current_index]; //change the target position
                                 }
-
                             } else {
                                 if (isDcMotor) {
                                     target_positions[general_list_index] = Math.max(Math.min(robot.dc_motor_list[specific_list_index].getCurrentPosition(),
@@ -209,7 +202,7 @@ public class Logic_Base implements Robot {
 
                                     double calculated_power;
 
-                                    if ((type.equals("toggle")) || key_index < 20) {
+                                    if ((type.equals("toggle")) || (key_index < 20)) {
                                         calculated_power = ((double) object_keys.get(4 * i + 3)) * (((String) object_keys.get(4 * i + 2)).equals("normal") ? 1.0 : Math.min(1, ((double) System.nanoTime() / 1000000000.0 - times_started[general_list_index]) / 0.75));
                                     } else {
                                         calculated_power = axes[key_index - 20] * ( //similar to button defaults, except no gradient option
@@ -226,7 +219,7 @@ public class Logic_Base implements Robot {
                                     }
                                     robot.dc_motor_list[specific_list_index].setPower(calculated_power);
                                 } else {
-                                    if ((type.equals("toggle")) || key_index < 20) {
+                                    if ((type.equals("toggle")) || (key_index < 20)) {
                                         target_positions[general_list_index] = starting_positions[general_list_index] + (double) object_keys.get(4 * i + 2) * ((double) System.nanoTime() / 1000000000.0 - times_started[general_list_index]);
                                     } else {
                                         target_positions[general_list_index] += //the expression below is seconds/tick, basically; current pos + seconds/tick * depth * angles/second
