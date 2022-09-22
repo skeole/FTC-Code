@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLo
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
-class Logic extends Logic_Base {
+class TeleOpExampleLogic extends Logic_Base { //You have to change the class name here
 
     public void execute_non_driver_controlled() {
         //this will have the telemetry, LEDs, etc.
@@ -136,7 +136,7 @@ class Logic extends Logic_Base {
         * not all buttons have to be used
      */
 
-    public Logic(RobotHardware r) {
+    public TeleOpExampleLogic(RobotHardware r) { //You have to change this
         super(r);
         set_keybinds();
         set_button_types();
@@ -146,7 +146,7 @@ class Logic extends Logic_Base {
 @TeleOp(name="TeleOp Example", group="Iterative Opmode")
 public class TeleOpExample extends LinearOpMode {
     RobotHardware robot = new RobotHardware();
-    Logic logic = new Logic(robot);
+    TeleOpExampleLogic logic = new TeleOpExampleLogic(robot); //You also have to change these two
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap, telemetry);

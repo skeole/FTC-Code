@@ -7,29 +7,15 @@ import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLo
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
-class DriverPracticeLogic extends Logic_Base {
+class TeleOp202Logic extends Logic_Base {
 
     public void execute_non_driver_controlled() {
 
-        if (useRoadRunner) {
-            robot.telemetry.addData("target x", target_x);
-            robot.telemetry.addData("target y", target_y);
+        //set the servo to be the arm position
+        //do this by resetting the servo target position each loop, NOT by setting the target position of the servo
+            //this is because the servo is not in the keybinds list
 
-            robot.telemetry.addData("current x", current_x);
-            robot.telemetry.addData("current y", current_y);
-        }
-
-        if ((useRoadRunner) || (usePID)) {
-            robot.telemetry.addData("target angle", target_angle);
-            robot.telemetry.addData("current angle", current_angle);
-        }
-
-        robot.telemetry.addData("angle to field", angle());
-
-        if (buttons[keys.indexOf("driver a")]) {
-            robot.telemetry.addData("resetting", "imu angle");
-            resetZeroAngle();
-        }
+        //robot.setPosition("arm servo", ahsdjklashd);
 
         robot.telemetry.update();
         if (useRoadRunner) {
@@ -37,10 +23,10 @@ class DriverPracticeLogic extends Logic_Base {
         }
     }
 
+    //Initialization
 
     public void init() {
         setZeroAngle(0);
-        button_types[keys.indexOf("driver a")] = "button";
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
@@ -50,19 +36,25 @@ class DriverPracticeLogic extends Logic_Base {
 
     public void set_keybinds() {
 
+        //arm
+
+        //new_keybind("arm", "operator right_stick_y", "default", 0.26, 0.13);
+
+        //don't include the servo for obvy reasons
+
     }
 
-    public DriverPracticeLogic(RobotHardware r) {
+    public TeleOp202Logic(RobotHardware r) {
         super(r);
         set_keybinds();
         set_button_types();
     }
 }
 
-@TeleOp(name="Driver Practice", group="Iterative Opmode")
-public class DriverPractice extends LinearOpMode {
+@TeleOp(name="TeleOp Team 202", group="Iterative Opmode")
+public class TeleOp202 extends LinearOpMode {
     RobotHardware robot = new RobotHardware();
-    DriverPracticeLogic logic = new DriverPracticeLogic(robot);
+    TeleOp202Logic logic = new TeleOp202Logic(robot);
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap, telemetry);
