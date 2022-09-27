@@ -128,7 +128,7 @@ public class Auton_Position implements Robot {
 
     public double getCorrection() {
         current_time = System.currentTimeMillis();
-        current_error = modulus(angle - position_tracker.getPoseEstimate().getHeading() + Math.PI, 2.0 * Math.PI) - Math.PI;
+        current_error = modifiedAngle(angle - position_tracker.getPoseEstimate().getHeading());
 
         double p = current_error;
         double d = (current_error - previous_error) / (current_time - previous_time);
@@ -139,14 +139,14 @@ public class Auton_Position implements Robot {
         return p_weight * p + d_weight * d;
     }
 
-    public double modulus(double value, double base) {
-        while (value >= base) {
-            value -= base;
+    public double modifiedAngle(double radians) {
+        while (radians > Math.PI) {
+            radians -= 2 * Math.PI;
         }
-        while (value < base) {
-            value += base;
+        while (radians < 0 - Math.PI) {
+            radians += 2 * Math.PI;
         }
-        return value;
+        return radians;
     }
     
 }
