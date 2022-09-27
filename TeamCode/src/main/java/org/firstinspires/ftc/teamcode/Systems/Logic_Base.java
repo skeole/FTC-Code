@@ -149,7 +149,7 @@ public class Logic_Base implements Robot {
                     times_started[general_list_index] = -10.0;
 
                     if (isDcMotor) {
-                        robot.dc_motor_list[specific_list_index].setPower(Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], (target_positions[general_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01)));
+                        robot.dc_motor_list[specific_list_index].setPower(Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], (target_positions[general_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * p_weights[specific_list_index])));
                     } else {
                         robot.servo_list[specific_list_index].setPosition(target_positions[general_list_index]);
                         starting_positions[general_list_index] = target_positions[general_list_index];
@@ -213,9 +213,9 @@ public class Logic_Base implements Robot {
 
                                     calculated_power = Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], calculated_power));
                                     if ((robot.dc_motor_list[specific_list_index].getCurrentPosition() > motor_max_positions[specific_list_index]) && (calculated_power > 0)) {
-                                        calculated_power = Math.max(min_power[specific_list_index], (motor_max_positions[specific_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01);
+                                        calculated_power = Math.max(min_power[specific_list_index], (motor_max_positions[specific_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * p_weights[specific_list_index]);
                                     } else if (robot.dc_motor_list[specific_list_index].getCurrentPosition() < motor_min_positions[specific_list_index] && (calculated_power < 0)) {
-                                        calculated_power = Math.min((motor_min_positions[specific_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * 0.01, max_power[specific_list_index]);
+                                        calculated_power = Math.min((motor_min_positions[specific_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * p_weights[specific_list_index], max_power[specific_list_index]);
                                     }
                                     robot.dc_motor_list[specific_list_index].setPower(calculated_power);
                                 } else {
