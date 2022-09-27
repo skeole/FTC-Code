@@ -44,6 +44,20 @@ public class Logic_Base implements Robot {
 
     public Logic_Base(RobotHardware r) {
         robot = r;
+        
+        for (String servo : servo_names) {
+            keybinds.put(servo, new ArrayList<>());
+        }
+        for (String motor : dc_motor_names) {
+            keybinds.put(motor, new ArrayList<>());
+        }
+
+        if ((useRoadRunner) && (usePID)) {
+            throw new IllegalArgumentException("You cannot use both RoadRunner and the build-in PID");
+        }
+        if (((locked_motion) || (locked_rotation)) && !((useRoadRunner) || (usePID))) {
+            throw new IllegalArgumentException("You can't use locked motion or rotion without a PID method");
+        }
     }
 
     public void execute_controllers(Gamepad gamepad1, Gamepad gamepad2) {
@@ -391,9 +405,6 @@ public class Logic_Base implements Robot {
         if (!(keys.contains((String) button))) {
             throw new IllegalArgumentException("You misspelled " + button + "  - make sure its exactly as it's spelled in keys. ");
         }
-        if (!keybinds.containsKey(motor)) {
-            keybinds.put(motor, new ArrayList<>());
-        }
         if (dc_motor_names.contains(motor) || servo_names.contains(motor)) {
             if (keybinds.get(motor).contains((Object) button)) {
                 throw new IllegalArgumentException("You can't have \"" + button + "\" have 2 different functions for the same motor. The motor is " +  motor + ". ");
@@ -493,10 +504,6 @@ public class Logic_Base implements Robot {
             if (button_types[i] == null) {
                 button_types[i] = "default";
             }
-        }
-
-        if ((useRoadRunner) && (usePID)) {
-            throw new IllegalArgumentException("You cannot use both RoadRunner and the build-in PID");
         }
     }
 
