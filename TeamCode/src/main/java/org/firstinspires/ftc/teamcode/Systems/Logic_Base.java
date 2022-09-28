@@ -51,6 +51,7 @@ public class Logic_Base implements Robot {
         for (String motor : dc_motor_names) {
             keybinds.put(motor, new ArrayList<>());
         }
+        keybinds.put("goto", new ArrayList<>());
 
         if ((useRoadRunner) && (usePID)) {
             throw new IllegalArgumentException("You cannot use both RoadRunner and the build-in PID");
