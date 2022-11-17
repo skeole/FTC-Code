@@ -39,7 +39,7 @@ public interface {Interface Name} {
     double[] motor_max_positions = {}; //just keep as 1 if encoders disabled, Double.POSITIVE_INFINITY if we don't want a limit
     double[] motor_min_positions = {}; //just keep as -1 if encoders disabled, Double.NEGATIVE_INFINITY if we don't want a limit
     int[] dc_motor_directions = {}; //0 for forward, 1 for reverse
-    double[] p_weights = {}; //for PID; multiplied by difference (encoder ticks)
+    double[] p_weights = {}; //for PID; multiplied by difference (encoder ticks); I recommend 0.05
 
     ArrayList<String> servo_names = new ArrayList<>(Arrays.asList());
     double[] servo_max_positions = {};

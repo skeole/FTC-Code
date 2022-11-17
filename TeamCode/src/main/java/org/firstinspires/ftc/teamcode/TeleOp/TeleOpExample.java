@@ -115,7 +115,7 @@ class TeleOpExampleLogic extends Logic_Base { //You have to change the class nam
             * button/cycle - 2 inputs
                 * identical, except for cycles you can "cycle" back to the other end
                 * how much we increase/decrease index on the list from where we are now
-                * which list do we follow. Note, it must be an int[] array
+                * which list do we follow. Note, it must be a double[] array, even though dc motor positions are ints
         * SERVOS - same as DC motors except for the following:
             * for power, it's not servo power but instead half-revolutions/sec. (I think) Can be negative or positive; must be a double (i.e. not 2, -4).
             * only 1 input for default (button) or toggle: power. Cannot be a gradient so mode is useless

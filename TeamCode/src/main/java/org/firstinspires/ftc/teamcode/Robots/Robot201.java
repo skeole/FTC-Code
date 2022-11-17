@@ -11,17 +11,17 @@ public interface Robot201 {
 
     //Robot Hardware
 
-    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList());
-    double[] max_power = {};
-    double[] min_power = {};
-    double[] motor_max_positions = {};
-    double[] motor_min_positions = {};
-    int[] dc_motor_directions = {};
-    double[] p_weights = {};
+    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("Left", "Right"));
+    double[] max_power = {0.8, 0.8};
+    double[] min_power = {-0.8, -0.8};
+    double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
+    double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+    int[] dc_motor_directions = {1, 1};
+    double[] p_weights = {0.05, 0.05};
 
-    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("Intake_Servo"));
-    double[] servo_max_positions = {1.0};
-    double[] servo_min_positions = {0.6};
+    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("Virtual", "Scissor"));
+    double[] servo_max_positions = {1.0, 1.0};
+    double[] servo_min_positions = {0.6, -1.0};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
 
@@ -68,7 +68,7 @@ public interface Robot201 {
             "Vuforia Key";
     String webcam_name = "Webcam 1";
     double camera_zoom = 1.0;
-    String TFOD_MODEL_ASSET = "PowerPlay.tflite";
+    String TFOD_MODEL_ASSET = "/sdcard/FIRST/tflitemodels/Sleeve_Detection.tflite"; //Move Sleeve_Detection.tflite to FtcRobotController/assets I think
     String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
     Float min_confidence = 0.75f;
     int input_size = 300;
@@ -79,7 +79,7 @@ public interface Robot201 {
             "3 Panel"
     };
 
-    ArrayList<String> encoderNames = new ArrayList<>(Arrays.asList("leftEncoder", "rightEncoder", "frontEncoder"));
+    ArrayList<String> encoderNames = new ArrayList<>(Arrays.asList("leftEncoder", "rightEncoder", "frontEncoder")); //REV Thorough Bore Encoders
 
     ArrayList<String> wheel_names = new ArrayList<>(Arrays.asList("rightFront", "rightBack", "leftBack", "leftFront"));
 
