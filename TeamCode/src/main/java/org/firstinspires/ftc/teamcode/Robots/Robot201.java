@@ -9,6 +9,14 @@ public interface Robot201 {
     double robot_width = 15.0;
     double robot_length = 15.0;
 
+    double[] armPositions = {0, 100, 200, 300, 400}; //Even though motor positions are ints, they have to be doubles
+    ArrayList<String> armPositionNames = new ArrayList<>(Arrays.asList("Intake", "Junction", "Low", "Medium", "High"));
+
+    double[] armPositions2 = {0.0, 0.1, 0.2, 0.3};
+    ArrayList<String> armPosition2Names = new ArrayList<>(Arrays.asList("Intake", "Angled Down", "Straight", "Angled Up"));
+
+    double[] scissorPositions = {0.0, 0.2};
+    ArrayList<String> scissorPositionNames = new ArrayList<>(Arrays.asList("Closed", "Open"));
     //Robot Hardware
 
     ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("Left", "Right"));
@@ -37,7 +45,7 @@ public interface Robot201 {
     double distance_weight = 1.0;
     double distance_weight_two = 1.0;
 
-    boolean locked_motion = false;
+    boolean locked_motion = false; //MAKE THESE TRUE SOON PLS :)
     boolean locked_rotation = false;
 
     //PID

@@ -18,6 +18,7 @@ class TeleOp201Logic extends Logic_Base {
         robot.telemetry.addData("Scissor", robot.servo_list[1].getPosition());
         robot.telemetry.addData("Angle?", robot.getAngle());
         robot.telemetry.addData("Angle V2", current_angle = 0 - robot.getAngle() - zero_angle); //Only different value if not starting robot straight ahead
+                                    //Positive = Rotated clockwise
         robot.telemetry.update();
         //target_positions[1] = target_positions[0]; may be harmful - check
         if (useRoadRunner) {
@@ -40,14 +41,14 @@ class TeleOp201Logic extends Logic_Base {
 
     public void set_keybinds() {
 
-        //arm
+        // Arm
         new_keybind("Left", "operator left_stick_y", "default", 0.5, 0.8);
         new_keybind("Right", "operator left_stick_y", "default", 0.5, 0.8);
 
-        //V4B
+        // V4B
         new_keybind("Virtual", "operator right_stick_y", "default", 1.0, 1.0);
 
-        //Scissor
+        // Scissor
         new_keybind("Scissor", "operator a", "default", 0.2, 0);
         new_keybind("Scissor", "operator b", "default", -0.2, 0);
         //new_keybind("Scissor", "operator a", "cycle", 1, new double[] {low, high});
