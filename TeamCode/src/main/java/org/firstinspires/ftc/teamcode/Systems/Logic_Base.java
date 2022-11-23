@@ -314,7 +314,6 @@ public class Logic_Base implements Robot {
 
         double distance_factor;
         double offset;
-        double s = strafe;
 
         if (left_stick_magnitude != 0) {
             distance_factor = left_stick_magnitude;
@@ -331,7 +330,6 @@ public class Logic_Base implements Robot {
             }
 
         } else {
-            s = 1;
 
             distance_factor = Math.sqrt((current_x - target_x) * (current_x - target_x) + (current_y - target_y) * (current_y - target_y)) * distance_weight_two;
                 //zero by default if not using RoadRunner :)
@@ -355,17 +353,17 @@ public class Logic_Base implements Robot {
             }
         } //target angle remains constant if we aren't turning manually
 
-        drive(turning_factor, distance_factor, offset, s, speedFactor);
+        drive(turning_factor, distance_factor, offset, speedFactor);
     }
 
-    public void drive(double turning_factor, double distance_factor, double offset, double strafe, double speedFactor) {
+    public void drive(double turning_factor, double distance_factor, double offset, double speedFactor) {
         double correction = getCorrection();
         turning_factor *= turning_weight;
         turning_factor += correction;
         distance_factor *= distance_weight;
         double[] power = new double[4];
         for (int i = 0; i < 4; i++) {
-            power[i] = turning_factor * ((i > 1) ? -1 : 1) - distance_factor * (Math.cos(offset) + Math.sin(offset) * (i % 2 == 1 ? 1 : -1) * strafe);
+            power[i] = turning_factor * ((i > 1) ? -1 : 1) - distance_factor * (Math.cos(offset) + Math.sin(offset) * (i % 2 == 1 ? 1 : -1) / strafe);
         }
         double maximum = Math.max(1, Math.max(Math.max(Math.abs(power[0]), Math.abs(power[1])), Math.max(Math.abs(power[2]), Math.abs(power[3]))));
         for (int i = 0; i < 4; i++) {

@@ -33,7 +33,9 @@ public interface {Interface Name} {
 
     //Robot Hardware
 
-    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList());
+    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList()); //Pretty simple, this is just the names of the dc motors
+                                                                                //that are connected to the control hubs, excluding
+                                                                                //the four drivetrain motors. 
     double[] max_power = {};
     double[] min_power = {};
     double[] motor_max_positions = {}; //just keep as 1 if encoders disabled, Double.POSITIVE_INFINITY if we don't want a limit
@@ -54,7 +56,7 @@ public interface {Interface Name} {
     ArrayList<String> led_names = new ArrayList<>(Arrays.asList());
 
     //Driving
-    double strafe = 1.0;
+    double strafe = 1.0; //ratio of strafe speed to forward speed. Ex. if strafe speed was 3 ft/s and forward speed was 4 ft/s, this variable is 0.75
     double turning_weight = 1.0;
     double distance_weight = 1.0;
     double distance_weight_two = 1.0; //multiplied by inches, only for RoadRunner

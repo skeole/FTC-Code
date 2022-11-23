@@ -40,7 +40,7 @@ public interface Robot201 {
     ArrayList<String> led_names = new ArrayList<>(Arrays.asList());
 
     //Driving
-    double strafe = 1.0;
+    double strafe = 0.8;
     double turning_weight = 1.0;
     double distance_weight = 1.0;
     double distance_weight_two = 1.0;
