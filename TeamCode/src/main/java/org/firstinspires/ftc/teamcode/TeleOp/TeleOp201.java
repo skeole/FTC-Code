@@ -14,6 +14,10 @@ class TeleOp201Logic extends Logic_Base {
 
         robot.telemetry.addData("Left DCM", robot.dc_motor_list[0].getCurrentPosition());
         robot.telemetry.addData("Right DCM", robot.dc_motor_list[1].getCurrentPosition());
+
+        robot.telemetry.addData("Left DCM Target", target_positions[0]);
+        robot.telemetry.addData("Right DCM Target", target_positions[1]);
+
         robot.telemetry.addData("Virtual", robot.servo_list[0].getPosition());
         robot.telemetry.addData("Scissor", robot.servo_list[1].getPosition());
         robot.telemetry.addData("Angle?", robot.getAngle());
@@ -31,7 +35,6 @@ class TeleOp201Logic extends Logic_Base {
 
     public void init() {
         setZeroAngle(0);
-        robot.dc_motor_list[1].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); //not necessary I think
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
@@ -42,15 +45,15 @@ class TeleOp201Logic extends Logic_Base {
     public void set_keybinds() {
 
         // Arm
-        new_keybind("Left", "operator left_stick_y", "default", 0.5, 0.8);
-        new_keybind("Right", "operator left_stick_y", "default", 0.5, 0.8);
+        new_keybind("Left", "operator left_stick_y", "default", 0.3, 0.8);
+        new_keybind("Right", "operator left_stick_y", "default", -0.3, -0.8);
 
         // V4B
         new_keybind("Virtual", "operator right_stick_y", "default", 1.0, 1.0);
 
         // Scissor
-        new_keybind("Scissor", "operator a", "default", 0.2, 0);
-        new_keybind("Scissor", "operator b", "default", -0.2, 0);
+        new_keybind("Scissor", "driver a", "default", 0.2, 0);
+        new_keybind("Scissor", "driver b", "default", -0.2, 0);
         //new_keybind("Scissor", "operator a", "cycle", 1, new double[] {low, high});
 
     }
