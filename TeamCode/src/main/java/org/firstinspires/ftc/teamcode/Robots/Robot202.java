@@ -14,7 +14,7 @@ public interface Robot202 {
     ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("joint1left", "joint1right", "joint2"));
     double[] max_power = {0.3, 0.3, 0.3};
     double[] min_power = {-0.3, -0.3, -0.3};
-    double[] motor_max_positions = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
+    double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
     double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
     boolean[] invert_dc_motors = {true, false, false};
     double[] p_weights = {0.05, 0.05, 0.05};

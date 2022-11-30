@@ -7,15 +7,75 @@ import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLo
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
+import java.util.Random;
+
 class TeleOp202Logic extends Logic_Base {
+
+    double time_difference = System.currentTimeMillis();
+    double tx = 2.0;
+    double ty = 0.0;
+
+    double z1 = Math.PI / 180.0 * 8.797411; //around 9 degrees idk
+    double z2 = Math.PI / 180.0 * 352; //around 354 degrees idk
+
+    double tpr = 2786.2109868741 / 2.0 / Math.PI;
+
+    Random rand = new Random();
 
     public void execute_non_driver_controlled() {
 
-        //set the servo to be the arm position
-        //do this by resetting the servo target position each loop, NOT by setting the target position of the servo
-            //this is because the servo is not in the keybinds list
+        if (rand.nextDouble() > 0.99999) throw new IllegalArgumentException("Sorry, that action is not allowed");
 
-        //robot.setPosition("arm servo", ahsdjklashd);
+        time_difference = System.currentTimeMillis() - time_difference;
+        if (buttons[keys.indexOf("driver dpad_up")])
+            ty += time_difference * 0.001;
+        if (buttons[keys.indexOf("driver dpad_down")])
+            ty -= time_difference * 0.001;
+        if (buttons[keys.indexOf("driver dpad_right")])
+            tx += time_difference * 0.001;
+        if (buttons[keys.indexOf("driver dpad_left")])
+            tx -= time_difference * 0.001;
+
+        time_difference = System.currentTimeMillis();
+
+        if (tx <= 0.001) tx = 0.001;
+
+        double magnitude = Math.sqrt(tx * tx + ty * ty);
+
+        if (magnitude > 2) {
+            tx /= magnitude / 2.0;
+            ty /= magnitude / 2.0;
+            magnitude = 2.0;
+        }
+
+        double tangle2 = Math.acos(1 - magnitude * magnitude / 2.0); //180 means straight line
+        double tangle1 = Math.PI + Math.atan(ty / tx) - tangle2 / 2.0; //0 means straight down
+        double tangle3 = Math.PI / 2.0 - tangle2 - tangle1;
+
+        tangle1 -= z1;
+        tangle2 -= z2;
+
+        tangle1 *= tpr;
+        tangle2 *= tpr;
+
+        target_positions[0] = tangle1; //ticks per radian
+        target_positions[1] = target_positions[0];
+
+        target_positions[2] = tangle2;
+
+        robot.telemetry.addData("targetx", tx);
+        robot.telemetry.addData("targety", ty);
+        //target_positions[3] = tangle3;
+        //set the servo to be the arm position
+
+        robot.telemetry.addData("joint1left data", robot.dc_motor_list[0].getCurrentPosition());
+        robot.telemetry.addData("joint1left data", target_positions[0]);
+
+        robot.telemetry.addData("joint1right data", robot.dc_motor_list[1].getCurrentPosition());
+        robot.telemetry.addData("joint1right data", target_positions[1]);
+
+        //robot.telemetry.addData("joint2 data", robot.dc_motor_list[2].getCurrentPosition());
+        //robot.telemetry.addData("joint2 data", target_positions[2]);
 
         robot.telemetry.update();
         if (useRoadRunner) {
@@ -27,6 +87,10 @@ class TeleOp202Logic extends Logic_Base {
 
     public void init() {
         setZeroAngle(0);
+        button_types[keys.indexOf("driver dpad_up")] = "default";
+        button_types[keys.indexOf("driver dpad_down")] = "default";
+        button_types[keys.indexOf("driver dpad_right")] = "default";
+        button_types[keys.indexOf("driver dpad_left")] = "default";
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
@@ -36,11 +100,9 @@ class TeleOp202Logic extends Logic_Base {
 
     public void set_keybinds() {
 
-        //arm
-
-        //new_keybind("arm", "operator right_stick_y", "default", 0.26, 0.13);
-
-        //don't include the servo for obvy reasons
+        //new_keybind("claw", "driver a", "cycle", 1, new double[] {0.0, 1.0});
+        new_keybind("claw", "driver a", "default", 0.2, "it's great to be a michigan wolverine");
+        new_keybind("claw", "driver b", "default", -0.2, "it's great to be a michigan wolverine");
 
     }
 
