@@ -406,7 +406,7 @@ public class Logic_Base implements Robot {
         }
         if (dc_motor_names.contains(motor) || servo_names.contains(motor)) {
             if (keybinds.get(motor).contains((Object) button)) {
-                throw new IllegalArgumentException("You can't have \"" + button + "\" have 2 different functions for the same motor. The motor is " +  motor + ". ");
+                throw new IllegalArgumentException("You can't have \"" + button + "\" have 2 different functions for the same motor and button combination. The motor is " +  motor + ". ");
             } else if (((String) modifier1).equals("button") || ((String) modifier1).equals("cycle")) {
                 try {
                     temp2 = (int) modifier2;

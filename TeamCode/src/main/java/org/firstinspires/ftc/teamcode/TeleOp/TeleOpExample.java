@@ -118,7 +118,7 @@ class TeleOpExampleLogic extends Logic_Base { //You have to change the class nam
                 * which list do we follow. Note, it must be a double[] array, even though dc motor positions are ints
         * SERVOS - same as DC motors except for the following:
             * for power, it's not servo power but instead half-revolutions/sec. (I think) Can be negative or positive; must be a double (i.e. not 2, -4).
-            * only 1 input for default (button) or toggle: power. Cannot be a gradient so mode is useless
+            * only 1 input for default (button) or toggle: power. Cannot be a gradient so mode is useless. 2nd input can be anything.
         *
         * MOTION - buttons
             * input "zero" (where you normally put the motor/servo name) is instead "goto"

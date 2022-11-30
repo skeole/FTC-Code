@@ -11,17 +11,17 @@ public interface Robot202 {
 
     //Robot Hardware
 
-    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList());
-    double[] max_power = {};
-    double[] min_power = {};
-    double[] motor_max_positions = {};
-    double[] motor_min_positions = {};
-    int[] dc_motor_directions = {};
-    double[] p_weights = {};
+    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("joint1left", "joint1right", "joint2"));
+    double[] max_power = {0.3, 0.3, 0.3};
+    double[] min_power = {-0.3, -0.3, -0.3};
+    double[] motor_max_positions = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
+    double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+    boolean[] invert_dc_motors = {true, false, false};
+    double[] p_weights = {0.05, 0.05, 0.05};
 
-    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("Intake_Servo"));
-    double[] servo_max_positions = {1.0};
-    double[] servo_min_positions = {0.6};
+    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("clawAligner", "claw"));
+    double[] servo_max_positions = {1.0, 1.0};
+    double[] servo_min_positions = {-1.0, -1.0};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
 
@@ -32,16 +32,16 @@ public interface Robot202 {
     ArrayList<String> led_names = new ArrayList<>(Arrays.asList());
 
     //Driving
-    double strafe = 1.0;
-    double turning_weight = 1.0;
-    double distance_weight = 1.0;
-    double distance_weight_two = 1.0;
+    double strafe = 0.0;
+    double turning_weight = 0.0;
+    double distance_weight = 0.0;
+    double distance_weight_two = 0.0;
 
     boolean locked_motion = false;
     boolean locked_rotation = false;
 
     //PID
-    boolean usePID = true;
+    boolean usePID = false;
     double p_weight = 0; // 0.025
     double d_weight = 0; // 0.085
 
@@ -56,7 +56,7 @@ public interface Robot202 {
     double lateral_distance = 0.0;
     double forward_offset = 4.0;
     boolean integer_overflow = false;
-    int[] encoder_directions = {1, 1, 1};
+    boolean[] invert_encoders = {false, false, false};
 
     //Road Runner Tuning
     double forward_multiplier = 1.0;

@@ -6,8 +6,10 @@ import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
 public class Threaded_Motor extends Thread {
 
-    RobotHardware robot;
-    int motor_index;
+    DcMotor motor;
+    double min_power;
+    double max_power;
+    double p;
     int target_position;
     public boolean isBusy = false;
     long startTime = 0;
@@ -15,8 +17,10 @@ public class Threaded_Motor extends Thread {
     long currentTime = System.nanoTime();
 
     public Threaded_Motor(RobotHardware r, String motor_name) {
-        robot = r;
-        motor_index = robot.dc_motor_names.indexOf(motor_name);
+        motor = r.map.get(DcMotor.class, motor_name);
+        min_power = r.min_power[r.dc_motor_names.indexOf(motor_name)];
+        max_power = r.max_power[r.dc_motor_names.indexOf(motor_name)];
+        p = r.p_weights[r.dc_motor_names.indexOf(motor_name)];
     }
 
     public boolean should_be_running = true;
@@ -26,7 +30,7 @@ public class Threaded_Motor extends Thread {
     }
 
     public void reset() {
-        robot.dc_motor_list[motor_index].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void delay(int milliseconds) {
@@ -39,13 +43,13 @@ public class Threaded_Motor extends Thread {
         while (should_be_running) {
             currentTime = System.nanoTime();
             if (currentTime > startTime + delay) {
-                isBusy = (Math.abs(target_position - robot.dc_motor_list[motor_index].getCurrentPosition()) < 5);
-                robot.dc_motor_list[motor_index].setPower(Math.max(-0.5, Math.min(0.5, 0.05 *
-                        (target_position - robot.dc_motor_list[motor_index].getCurrentPosition())
+                isBusy = (Math.abs(target_position - motor.getCurrentPosition()) < 5);
+                motor.setPower(Math.max(-0.5, Math.min(0.5, p *
+                        (target_position - motor.getCurrentPosition())
                 )));
             } else {
                 isBusy = true;
-                robot.dc_motor_list[motor_index].setPower(0);
+                motor.setPower(0);
             }
         }
     }

@@ -24,12 +24,12 @@ public interface Robot201 {
     double[] min_power = {-0.8, -0.8};
     double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
     double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
-    int[] dc_motor_directions = {1, 1};
+    boolean[] invert_dc_motors = {true, false};
     double[] p_weights = {0.05, 0.05};
 
     ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("Virtual", "Scissor"));
     double[] servo_max_positions = {1.0, 1.0};
-    double[] servo_min_positions = {0.6, -1.0};
+    double[] servo_min_positions = {-1.0, -1.0};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
 
@@ -64,7 +64,7 @@ public interface Robot201 {
     double lateral_distance = 0.0;
     double forward_offset = 4.0;
     boolean integer_overflow = false;
-    int[] encoder_directions = {1, 1, 1};
+    boolean[] invert_encoders = {false, false, false};
 
     //Road Runner Tuning
     double forward_multiplier = 1.0;
