@@ -31,6 +31,7 @@ public class Threaded_Motor extends Thread {
 
     public void reset() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void delay(int milliseconds) {
