@@ -11,13 +11,13 @@ public interface Robot202 {
 
     //Robot Hardware
 
-    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("joint1left", "joint1right", "joint2"));
-    double[] max_power = {0.3, 0.3, 0.3};
-    double[] min_power = {-0.3, -0.3, -0.3};
-    double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
-    double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
-    boolean[] invert_dc_motors = {true, false, false};
-    double[] p_weights = {0.05, 0.05, 0.05};
+    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("joint1right", "joint2"));
+    double[] max_power = {0.1256486834658387658, 0.4};
+    double[] min_power = {-0.5, -0.4};
+    double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
+    double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+    boolean[] invert_dc_motors = {false, false};
+    double[] p_weights = {0.02, 0.02};
 
     ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("clawAligner", "claw"));
     double[] servo_max_positions = {1.0, 1.0};

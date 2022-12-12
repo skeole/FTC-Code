@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
@@ -15,37 +16,53 @@ class TeleOp202Logic extends Logic_Base {
     double tx = 2.0;
     double ty = 0.0;
 
-    double z1 = Math.PI / 180.0 * 8.797411; //around 9 degrees idk
-    double z2 = Math.PI / 180.0 * 352; //around 354 degrees idk
+    double z1 = Math.PI / 180.0 * 5; //around 7.5 degrees idk
+    double z2 = Math.PI / 180.0 * 352; //around 352 degrees idk
 
     double tpr = 2786.2109868741 / 2.0 / Math.PI;
 
     Random rand = new Random();
+    DcMotor dc = null;
 
     public void execute_non_driver_controlled() {
 
         if (rand.nextDouble() > 0.99999) throw new IllegalArgumentException("Sorry, that action is not allowed");
 
+        double xbefor = tx;
+        double ybefor = ty;
+
         time_difference = System.currentTimeMillis() - time_difference;
         if (buttons[keys.indexOf("driver dpad_up")])
-            ty += time_difference * 0.001;
+            ty += time_difference * 0.002;
         if (buttons[keys.indexOf("driver dpad_down")])
-            ty -= time_difference * 0.001;
+            ty -= time_difference * 0.002;
         if (buttons[keys.indexOf("driver dpad_right")])
-            tx += time_difference * 0.001;
+            tx += time_difference * 0.002;
         if (buttons[keys.indexOf("driver dpad_left")])
-            tx -= time_difference * 0.001;
+            tx -= time_difference * 0.002;
 
         time_difference = System.currentTimeMillis();
 
+        if (ty < Math.sqrt(3)) {
+            tx = 1;
+            if (ty < -1) ty = -1;
+        } else {
+            tx = Math.sqrt(4 - ty * ty);
+        }
+        
         if (tx <= 0.001) tx = 0.001;
+
+        if (buttons[keys.indexOf("driver y")]) {
+            tx = 1;
+            ty = 1.7;
+        }
 
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
         if (magnitude > 2) {
-            tx /= magnitude / 2.0;
-            ty /= magnitude / 2.0;
-            magnitude = 2.0;
+            tx = xbefor;
+            ty = ybefor;
+            magnitude = Math.sqrt(tx * tx + ty * ty);
         }
 
         double tangle2 = Math.acos(1 - magnitude * magnitude / 2.0); //180 means straight line
@@ -58,24 +75,18 @@ class TeleOp202Logic extends Logic_Base {
         tangle1 *= tpr;
         tangle2 *= tpr;
 
-        target_positions[0] = tangle1; //ticks per radian
-        target_positions[1] = target_positions[0];
+        target_positions[0] = 0 - tangle1; //ticks per radian
+        dc.setPower(robot.dc_motor_list[0].getPower());
 
-        target_positions[2] = tangle2;
+
+        target_positions[1] = tangle2;
 
         robot.telemetry.addData("targetx", tx);
         robot.telemetry.addData("targety", ty);
-        //target_positions[3] = tangle3;
+        //target_positions[2] = tangle3 / 2.0 / Math.PI;
+        robot.telemetry.addData("clawAligner", target_positions[2]);
+        robot.telemetry.addData("target position", 1000 + 300 * rand.nextDouble());
         //set the servo to be the arm position
-
-        robot.telemetry.addData("joint1left data", robot.dc_motor_list[0].getCurrentPosition());
-        robot.telemetry.addData("joint1left data", target_positions[0]);
-
-        robot.telemetry.addData("joint1right data", robot.dc_motor_list[1].getCurrentPosition());
-        robot.telemetry.addData("joint1right data", target_positions[1]);
-
-        //robot.telemetry.addData("joint2 data", robot.dc_motor_list[2].getCurrentPosition());
-        //robot.telemetry.addData("joint2 data", target_positions[2]);
 
         robot.telemetry.update();
         if (useRoadRunner) {
@@ -87,6 +98,7 @@ class TeleOp202Logic extends Logic_Base {
 
     public void init() {
         setZeroAngle(0);
+        dc = robot.map.get(DcMotor.class, "joint1left");
         button_types[keys.indexOf("driver dpad_up")] = "default";
         button_types[keys.indexOf("driver dpad_down")] = "default";
         button_types[keys.indexOf("driver dpad_right")] = "default";
@@ -101,8 +113,8 @@ class TeleOp202Logic extends Logic_Base {
     public void set_keybinds() {
 
         //new_keybind("claw", "driver a", "cycle", 1, new double[] {0.0, 1.0});
-        new_keybind("claw", "driver a", "default", 0.2, "it's great to be a michigan wolverine");
-        new_keybind("claw", "driver b", "default", -0.2, "it's great to be a michigan wolverine");
+        new_keybind("clawAligner", "driver a", "default", 0.2, "it's great to be a michigan wolverine");
+        new_keybind("clawAligner", "driver b", "default", -0.2, "it's great to be a michigan wolverine");
 
     }
 
