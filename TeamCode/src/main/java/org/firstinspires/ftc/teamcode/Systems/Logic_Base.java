@@ -18,7 +18,7 @@ public class Logic_Base implements Robot {
     public HashMap<String, ArrayList<Object>> keybinds = new HashMap<>();
     public String[] button_types = new String[27];
 
-    public double[] times_started = new double[dc_motor_names.size() + servo_names.size()]; //in seconds
+    public double[] times_started = new double[dc_motor_names.size() + servo_names.size() + cr_servo_names.size()]; //in seconds
     public double[] target_positions = new double[dc_motor_names.size() + servo_names.size()];
     public double[] starting_positions = new double[dc_motor_names.size() + servo_names.size()]; //never use for dc_motors
 
@@ -50,6 +50,9 @@ public class Logic_Base implements Robot {
         }
         for (String motor : dc_motor_names) {
             keybinds.put(motor, new ArrayList<>());
+        }
+        for (String cr_servo : cr_servo_names) {
+            keybinds.put(cr_servo, new ArrayList<>());
         }
         keybinds.put("goto", new ArrayList<>());
 
@@ -251,6 +254,33 @@ public class Logic_Base implements Robot {
                         }
                     }
                 }
+            } else if (cr_servo_names.contains(element.getKey())) {
+                int index = cr_servo_names.indexOf(element.getKey());
+                if (!object_is_active) {
+                    robot.cr_servo_list[index].setPower(0);
+                    times_started[target_positions.length + index] = -10;
+                } else {
+                    if (times_started[target_positions.length + index] < 0) {
+                        times_started[target_positions.length + index] = (double) System.nanoTime() / 1000000000.0;
+                    }
+                    for (int i = 0; i < number_of_keys; i++) {
+
+                        key_index = keys.indexOf((String) object_keys.get(4 * i)); //where button is in list of keys; < 20 -> button, >= 20 -> axis
+                        String type = (String) object_keys.get(4 * i + 1);
+
+                        if ((key_index < 20 && buttons[key_index]) || (key_index > 19 && Math.abs(axes[key_index - 20]) > 0.1)) {
+
+                            if ((type.equals("toggle")) || (key_index < 20)) {
+                                robot.cr_servo_list[index].setPower(((double) object_keys.get(4 * i + 3)) * (((String) object_keys.get(4 * i + 2)).equals("normal") ? 1.0 : Math.min(1, ((double) System.nanoTime() / 1000000000.0 - times_started[target_positions.length + index]) / 0.75)));
+                            } else {
+                                robot.cr_servo_list[index].setPower(axes[key_index - 20] * ( //similar to button defaults, except no gradient option
+                                    (key_index > 23) ? (double) object_keys.get(4 * i + 2) : //if it's a trigger, then set it to the first val
+                                    (axes[key_index - 20] < 0 ? (double) object_keys.get(4 * i + 2) : (double) object_keys.get(4 * i + 3))
+                                ));
+                            }
+                        }
+                    }
+                }
             } else {
                 for (int i = 0; i < number_of_keys; i++) {
 
@@ -396,18 +426,28 @@ public class Logic_Base implements Robot {
 
     //Initialization
 
-    public void new_keybind(String motor, Object button, Object modifier1, Object modifier2, Object modifier3) {
+    public void new_keybind(String motor, String button, Object modifier1, Object modifier2, Object modifier3) {
         Object temp2;
-        if (!dc_motor_names.contains(motor) && !servo_names.contains(motor) &&!(motor.equals("goto"))) {
-            throw new IllegalArgumentException("You misspelled " + motor + " - make sure its exactly as it's spelled in dc motor list or servo list, or it's \"goto\". Idiot");
-        }
-        if (!(keys.contains((String) button))) {
-            throw new IllegalArgumentException("You misspelled " + button + "  - make sure its exactly as it's spelled in keys. ");
-        }
-        if (dc_motor_names.contains(motor) || servo_names.contains(motor)) {
-            if (keybinds.get(motor).contains((Object) button)) {
-                throw new IllegalArgumentException("You can't have \"" + button + "\" have 2 different functions for the same motor and button combination. The motor is " +  motor + ". ");
-            } else if (((String) modifier1).equals("button") || ((String) modifier1).equals("cycle")) {
+        if (!keybinds.containsKey(motor)) throw new IllegalArgumentException("You misspelled " + motor + " - make sure its exactly as it's spelled in dc motor list or servo list, or it's \"goto\". Idiot");
+        if (!(keys.contains(button))) throw new IllegalArgumentException("You misspelled " + button + "  - make sure its exactly as it's spelled in keys. ");
+        if (keybinds.get(motor).contains((Object) button)) throw new IllegalArgumentException("You can't have \"" + button + "\" have 2 different functions for the same motor and button combination. The motor is " +  motor + ". ");
+
+        if (dc_motor_names.contains(motor) || cr_servo_names.contains(motor) || servo_names.contains(motor)) {
+            if (button_types[keys.indexOf(button)] == null) {
+                button_types[keys.indexOf(button)] = (String) modifier1;
+                if (modifier1.equals("cycle")) {
+                    button_types[keys.indexOf(button)] = "button";
+                }
+            } else if (!button_types[keys.indexOf(button)].equals((String) modifier1)) {
+                //if already set to something different
+                if (!(modifier1.equals("cycle") && button_types[keys.indexOf(button)].equals("button"))) {
+                    throw new IllegalArgumentException("A button cannot have 2 types; however, you are setting \"" + button +
+                            "\" to be both a " + button_types[keys.indexOf(button)] + " and a button. (\"goto\" is, by default, a button) ");
+                }
+            }
+
+            if (((String) modifier1).equals("button") || ((String) modifier1).equals("cycle")) {
+                if (cr_servo_names.contains(motor)) throw new IllegalArgumentException("You can't set positions to Continuous Rotation Servos");
                 try {
                     temp2 = (int) modifier2;
                 } catch(ClassCastException e) {
@@ -457,6 +497,12 @@ public class Logic_Base implements Robot {
                 throw new IllegalArgumentException("You misspelled " + modifier1 + " in key " + button + " - make sure its \"default\", \"button\", \"cycle\" or \"toggle\".");
             }
         } else { //goto
+            if (button_types[keys.indexOf((String) button)] == null) {
+                button_types[keys.indexOf((String) button)] = "button";
+            } else if (!button_types[keys.indexOf((String) button)].equals("button")) {
+                throw new IllegalArgumentException("A button cannot have 2 types; however, you are setting \"" + button +
+                        "\" to be both a " + button_types[keys.indexOf((String) button)] + " and a button. (\"goto\" is, by default, a button) ");
+            }
             try {
                 temp2 = (double) modifier1;
                 temp2 = (double) modifier2;
@@ -471,34 +517,13 @@ public class Logic_Base implements Robot {
                 }
             }
         }
-        keybinds.get(motor).add(button);
+        keybinds.get(motor).add((Object) button);
         keybinds.get(motor).add(modifier1);
         keybinds.get(motor).add(modifier2);
         keybinds.get(motor).add(modifier3);
     }
 
     public void set_button_types() {
-        Object temp2;
-        for (Map.Entry<String, ArrayList<Object>> element : keybinds.entrySet()) { //for every entry in keybinds...
-            for (int i = 0; i < (element.getValue()).size(); i += 4) {
-                try {
-                    temp2 = (double) element.getValue().get(i+1);
-                    if (button_types[keys.indexOf((String) element.getValue().get(i))] == null) {
-                        button_types[keys.indexOf((String) element.getValue().get(i))] = "button";
-                    } else if (!((button_types[keys.indexOf((String) element.getValue().get(i))]).equals("button"))) {
-                        throw new IllegalArgumentException("A button cannot have 2 types; however, you are setting \"" + element.getValue().get(i) +
-                                "\" to be both a " + button_types[keys.indexOf((String) element.getValue().get(i))] + " and a button. (\"goto\" is, by default, a button) ");
-                    }
-                } catch(ClassCastException e) {
-                    if (button_types[keys.indexOf((String) element.getValue().get(i))] == null) {
-                        button_types[keys.indexOf((String) element.getValue().get(i))] = (String) element.getValue().get(i+1);
-                    } else if (!((button_types[keys.indexOf((String) element.getValue().get(i))]).equals((String) element.getValue().get(i+1)))) {
-                        throw new IllegalArgumentException("A button cannot have 2 types; however, you are setting \"" + element.getValue().get(i) +
-                                "\" to be both a " + button_types[keys.indexOf((String) element.getValue().get(i))] + " and a " + element.getValue().get(i+1) + ". ");
-                    }
-                }
-            }
-        }
         for (int i = 0; i < 27; i++) {
             if (button_types[i] == null) {
                 button_types[i] = "default";

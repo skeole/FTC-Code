@@ -17,7 +17,7 @@ class TeleOp202Logic extends Logic_Base {
     double ty = 0.0;
 
     double z1 = Math.PI / 180.0 * 5; //around 7.5 degrees idk
-    double z2 = Math.PI / 180.0 * 352; //around 352 degrees idk
+    double z2 = Math.PI / 180.0 * 354; //around 352 degrees idk
 
     double tpr = 2786.2109868741 / 2.0 / Math.PI;
 
@@ -26,7 +26,7 @@ class TeleOp202Logic extends Logic_Base {
 
     public void execute_non_driver_controlled() {
 
-        if (rand.nextDouble() > 0.99999) throw new IllegalArgumentException("Sorry, that action is not allowed");
+        if (rand.nextDouble() > 1.2) throw new IllegalArgumentException("Sorry, that action is not allowed");
 
         double xbefor = tx;
         double ybefor = ty;

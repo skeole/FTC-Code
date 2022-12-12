@@ -21,7 +21,10 @@ public interface Robot202 {
 
     ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("clawAligner", "claw"));
     double[] servo_max_positions = {1.0, 1.0};
-    double[] servo_min_positions = {-1.0, -1.0};
+    double[] servo_min_positions = {0, 0};
+
+    ArrayList<String> cr_servo_names = new ArrayList<String>(Arrays.asList());
+    boolean[] invert_cr_servos = {};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
 
@@ -37,15 +40,15 @@ public interface Robot202 {
     double distance_weight = 0.0;
     double distance_weight_two = 0.0;
 
-    boolean locked_motion = false;
+    boolean locked_motion = true;
     boolean locked_rotation = false;
 
     //PID
-    boolean usePID = false;
-    double p_weight = 0; // 0.025
+    boolean usePID = true;
+    double p_weight = 0.025; // 0.025
     double d_weight = 0; // 0.085
 
-    AxesOrder axesOrder = AxesOrder.ZYX;
+    AxesOrder axesOrder = AxesOrder.YXZ;
     boolean invertIMU = false;
 
     //Road Runner

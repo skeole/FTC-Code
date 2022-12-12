@@ -29,7 +29,10 @@ public interface Robot201 {
 
     ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("Virtual", "Scissor"));
     double[] servo_max_positions = {1.0, 1.0};
-    double[] servo_min_positions = {-1.0, -1.0};
+    double[] servo_min_positions = {0.0, 0.0};
+
+    ArrayList<String> cr_servo_names = new ArrayList<String>(Arrays.asList());
+    boolean[] invert_cr_servos = {};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
 

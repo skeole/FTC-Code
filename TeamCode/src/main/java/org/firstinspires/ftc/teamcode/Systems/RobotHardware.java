@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.Systems;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -29,6 +31,7 @@ public class RobotHardware implements Robot {
     public DcMotor[] wheel_list = new DcMotor[wheel_names.size()];
     public DcMotor[] dc_motor_list = new DcMotor[dc_motor_names.size()];
     public Servo[] servo_list = new Servo[servo_names.size()];
+    public CRServo[] cr_servo_list = new CRServo[cr_servo_names.size()];
 
     public DistanceSensor[] distance_sensor_list = new DistanceSensor[distance_sensor_names.size()];
     public TouchSensor[] touch_sensor_list = new TouchSensor[touch_sensor_names.size()];
@@ -82,6 +85,11 @@ public class RobotHardware implements Robot {
 
         for (int i = 0; i < servo_list.length; i++)
             servo_list[i] = hardwareMap.get(Servo.class, servo_names.get(i));
+
+        for (int i = 0; i < cr_servo_list.length; i++) {
+            cr_servo_list[i] = hardwareMap.get(CRServo.class, cr_servo_names.get(i));
+            dc_motor_list[i].setDirection(invert_cr_servos[i] ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+        }
 
         telemetry.addData("Robot Hardware", "Initialized");
         telemetry.update();
