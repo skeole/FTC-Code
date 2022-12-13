@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.Systems.Autonomous;
+package org.firstinspires.ftc.teamcode.Shared.Autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
+import org.firstinspires.ftc.teamcode.Shared.RoadRunner.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.Shared.RobotHardware;
 
 public class Auton_Position implements Robot {
 

@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.Examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
-import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
+import org.firstinspires.ftc.teamcode.Shared.RoadRunner.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.Shared.Logic_Base;
+import org.firstinspires.ftc.teamcode.Shared.RobotHardware;
 
 class TeleOpExampleLogic extends Logic_Base { //You have to change the class name here
 

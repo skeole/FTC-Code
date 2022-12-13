@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.Systems.Autonomous;
+package org.firstinspires.ftc.teamcode.Shared.Autonomous;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
+import org.firstinspires.ftc.teamcode.Shared.RobotHardware;
 
 public class Threaded_Motor extends Thread {
 

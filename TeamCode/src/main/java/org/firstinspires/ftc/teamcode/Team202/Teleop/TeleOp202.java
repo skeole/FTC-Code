@@ -1,16 +1,17 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.Team202.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
-import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
+import org.firstinspires.ftc.teamcode.Shared.Logic_Base;
+import org.firstinspires.ftc.teamcode.Shared.RoadRunner.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.Shared.RobotHardware;
 
 import java.util.Random;
 
 class TeleOp202Logic extends Logic_Base {
+
 
     double time_difference = System.currentTimeMillis();
     double tx = 2.0;
@@ -49,7 +50,7 @@ class TeleOp202Logic extends Logic_Base {
         } else {
             tx = Math.sqrt(4 - ty * ty);
         }
-        
+
         if (tx <= 0.001) tx = 0.001;
 
         if (buttons[keys.indexOf("driver y")]) {

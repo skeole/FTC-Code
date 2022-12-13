@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Systems.Autonomous;
+package org.firstinspires.ftc.teamcode.Shared.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -6,7 +6,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
+import org.firstinspires.ftc.teamcode.Shared.RobotHardware;
 
 import java.util.ArrayList;
 import java.util.List;
