@@ -19,20 +19,20 @@ public interface Robot201 {
     ArrayList<String> scissorPositionNames = new ArrayList<>(Arrays.asList("Closed", "Open"));
     //Robot Hardware
 
-    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("Left", "Right"));
-    double[] max_power = {0.8, 0.8};
-    double[] min_power = {-0.8, -0.8};
-    double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
-    double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
-    boolean[] invert_dc_motors = {true, false};
-    double[] p_weights = {0.05, 0.05};
+    ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("Left"));
+    double[] max_power = {1.0};
+    double[] min_power = {-0.3};
+    double[] motor_max_positions = {Double.POSITIVE_INFINITY};
+    double[] motor_min_positions = {Double.NEGATIVE_INFINITY};
+    boolean[] invert_dc_motors = {false};
+    double[] p_weights = {0.05};
 
-    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList("Virtual", "Scissor"));
-    double[] servo_max_positions = {1.0, 1.0};
-    double[] servo_min_positions = {0.0, 0.0};
+    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList());//"Scissor"));
+    double[] servo_max_positions = {0.9};
+    double[] servo_min_positions = {0.6};
 
-    ArrayList<String> cr_servo_names = new ArrayList<String>(Arrays.asList());
-    boolean[] invert_cr_servos = {};
+    ArrayList<String> cr_servo_names = new ArrayList<>(Arrays.asList("Virtual"));
+    boolean[] invert_cr_servos = {false};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
 

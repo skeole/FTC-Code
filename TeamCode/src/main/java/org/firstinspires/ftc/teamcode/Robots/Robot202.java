@@ -23,7 +23,7 @@ public interface Robot202 {
     double[] servo_max_positions = {1.0, 1.0};
     double[] servo_min_positions = {0, 0};
 
-    ArrayList<String> cr_servo_names = new ArrayList<String>(Arrays.asList());
+    ArrayList<String> cr_servo_names = new ArrayList<>(Arrays.asList());
     boolean[] invert_cr_servos = {};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());
@@ -35,9 +35,9 @@ public interface Robot202 {
     ArrayList<String> led_names = new ArrayList<>(Arrays.asList());
 
     //Driving
-    double strafe = 0.0;
-    double turning_weight = 0.0;
-    double distance_weight = 0.0;
+    double strafe = 1.0;
+    double turning_weight = 1.0;
+    double distance_weight = 1.0;
     double distance_weight_two = 0.0;
 
     boolean locked_motion = true;

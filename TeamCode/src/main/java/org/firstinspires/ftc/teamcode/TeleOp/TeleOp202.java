@@ -42,20 +42,9 @@ class TeleOp202Logic extends Logic_Base {
             tx -= time_difference * 0.002;
 
         time_difference = System.currentTimeMillis();
-
-        if (ty < Math.sqrt(3)) {
-            tx = 1;
-            if (ty < -1) ty = -1;
-        } else {
-            tx = Math.sqrt(4 - ty * ty);
-        }
         
         if (tx <= 0.001) tx = 0.001;
-
-        if (buttons[keys.indexOf("driver y")]) {
-            tx = 1;
-            ty = 1.7;
-        }
+        if (ty < -1) ty = -1;
 
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
@@ -112,7 +101,8 @@ class TeleOp202Logic extends Logic_Base {
 
     public void set_keybinds() {
 
-        //new_keybind("claw", "driver a", "cycle", 1, new double[] {0.0, 1.0});
+        new_keybind("claw", "driver x", "default", 0.2, "it's great");
+        new_keybind("claw", "driver y", "default", -0.2, "to be");
         new_keybind("clawAligner", "driver a", "default", 0.2, "it's great to be a michigan wolverine");
         new_keybind("clawAligner", "driver b", "default", -0.2, "it's great to be a michigan wolverine");
 
@@ -126,7 +116,8 @@ class TeleOp202Logic extends Logic_Base {
 }
 
 @TeleOp(name="TeleOp Team 202", group="Iterative Opmode")
-public class TeleOp202 extends LinearOpMode {
+public class
+TeleOp202 extends LinearOpMode {
     RobotHardware robot = new RobotHardware();
     TeleOp202Logic logic = new TeleOp202Logic(robot);
     @Override

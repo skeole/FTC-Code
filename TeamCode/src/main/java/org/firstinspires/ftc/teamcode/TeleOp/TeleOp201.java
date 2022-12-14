@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
@@ -10,41 +11,30 @@ import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
 class TeleOp201Logic extends Logic_Base {
 
+    DcMotor helloworld;
+    Servo fuckthis;
+    double lastpower = 0.6;
+
     public void execute_non_driver_controlled() {
 
-        if (buttons[keys.indexOf("driver a")]) {
-            robot.telemetry.addData("a button", "pressed (should show up for only one tick)");
-            //set scissor position to closed
-            //if V4B greater than position 1
-                //if arm not close to position 1: move arm
-                //else: move V4B, variable + wait for 1 sec or smth
-            //else if arm not close to position 2: move arm to position 2
-            //else: V4B to final position
-            //finally, variable for a cycle is turned off
-
-            //IF all of these checks are passed on the first step, then a cycle 2 is true
-            //move arm down
-            //move servo to open, wait a few seconds
-            //move arm up
-            //move v4b inward
-            //move arm up again
-            //move v4b out again
-            //make this second stage on a second button to start but hopefully it can all be on one by the end :)
-        }
-        robot.telemetry.addData("Left DCM", robot.dc_motor_list[0].getCurrentPosition());
-        robot.telemetry.addData("Right DCM", robot.dc_motor_list[1].getCurrentPosition());
-
-        robot.telemetry.addData("Left DCM Target", target_positions[0]);
-        robot.telemetry.addData("Right DCM Target", target_positions[1]);
-
-        robot.telemetry.addData("Virtual", robot.servo_list[0].getPosition());
-        robot.telemetry.addData("Scissor", robot.servo_list[1].getPosition());
         robot.telemetry.addData("Angle?", robot.getAngle());
         robot.telemetry.addData("Angle V2", current_angle = 0 - robot.getAngle() - zero_angle); //Only different value if not starting robot straight ahead
                                     //Positive = Rotated clockwise
+
+        robot.telemetry.addData("Power", robot.dc_motor_list[0].getPower());
+        robot.telemetry.addData("Servo Power?", robot.cr_servo_list[0].getPower());
+
         robot.telemetry.update();
 
-        target_positions[1] = 0 - target_positions[0];
+        helloworld.setPower(robot.dc_motor_list[0].getPower());
+
+        if (buttons[keys.indexOf("driver a")]) {
+            lastpower = 0.6;
+        } else if (buttons[keys.indexOf("driver b")]) {
+            lastpower = 0.2;
+        }
+
+        fuckthis.setPosition(lastpower);
 
         if (useRoadRunner) {
             position_tracker.update();
@@ -55,7 +45,9 @@ class TeleOp201Logic extends Logic_Base {
 
     public void init() {
         setZeroAngle(0);
-        button_types[keys.indexOf("driver a")] = "button";
+        helloworld = robot.map.get(DcMotor.class, "Right");
+        helloworld.setDirection(DcMotor.Direction.REVERSE);
+        fuckthis = robot.map.get(Servo.class, "Scissor");
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
@@ -66,15 +58,16 @@ class TeleOp201Logic extends Logic_Base {
     public void set_keybinds() {
 
         // Arm
-        new_keybind("Left", "driver dpad_up", "default", "gradient", 0.8);
-        new_keybind("Right", "driver dpad_up", "default", "gradient", 0.8);
+        new_keybind("Left", "driver dpad_up", "default", "normal", 1.0);
 
-        new_keybind("Left", "driver dpad_down", "default", "gradient", -0.3);
-        new_keybind("Right", "driver dpad_down", "default", "gradient", -0.3);
+        new_keybind("Left", "driver dpad_down", "default", "normal", 0.1);
 
         // V4B
-        new_keybind("Virtual", "driver y", "default", "gradient", 0.3);
-        new_keybind("Virtual", "driver x", "default", "gradient", -0.3);
+        new_keybind("Virtual", "driver y", "default", "normal", 1.0);
+        new_keybind("Virtual", "driver x", "default", "normal", -1.0);
+
+        //new_keybind("Scissor", "driver a", "default", 0.3, "what");
+        //new_keybind("Scissor", "driver b", "default", -0.3, "the hell");
 
     }
 

@@ -169,6 +169,7 @@ public class Logic_Base implements Robot {
                     if (isDcMotor) {
                         robot.dc_motor_list[specific_list_index].setPower(Math.max(min_power[specific_list_index], Math.min(max_power[specific_list_index], (target_positions[general_list_index] - robot.dc_motor_list[specific_list_index].getCurrentPosition()) * p_weights[specific_list_index])));
                     } else {
+                        target_positions[general_list_index] = Math.max(servo_min_positions[specific_list_index], Math.min(servo_max_positions[specific_list_index], target_positions[general_list_index]));
                         robot.servo_list[specific_list_index].setPosition(target_positions[general_list_index]);
                         starting_positions[general_list_index] = target_positions[general_list_index];
                     }
