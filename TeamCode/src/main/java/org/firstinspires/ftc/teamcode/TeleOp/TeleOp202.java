@@ -8,28 +8,30 @@ import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLo
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
-import java.util.Random;
-
 class TeleOp202Logic extends Logic_Base {
 
     double time_difference = System.currentTimeMillis();
     double tx = 2.0;
     double ty = 0.0;
 
-    double z1 = Math.PI / 180.0 * 5; //around 7.5 degrees idk
-    double z2 = Math.PI / 180.0 * 354; //around 352 degrees idk
+    boolean clawOpen = false;
+
+    static double CLAW_OPEN = 1;
+    static double CLAW_CLOSE = 0;
+
+    double CLAW_ALIGNER_INCREMENTER=0.01;
+
+    double z1 = Math.PI / 180.0 * 5; 
+    double z2 = Math.PI / 180.0 * 354; 
 
     double tpr = 2786.2109868741 / 2.0 / Math.PI;
 
-    Random rand = new Random();
     DcMotor dc = null;
 
     public void execute_non_driver_controlled() {
 
-        if (rand.nextDouble() > 1.2) throw new IllegalArgumentException("Sorry, that action is not allowed");
-
-        double xbefor = tx;
-        double ybefor = ty;
+        double xbefore = tx;
+        double ybefore = ty;
 
         time_difference = System.currentTimeMillis() - time_difference;
         if (buttons[keys.indexOf("driver dpad_up")])
@@ -40,6 +42,17 @@ class TeleOp202Logic extends Logic_Base {
             tx += time_difference * 0.002;
         if (buttons[keys.indexOf("driver dpad_left")])
             tx -= time_difference * 0.002;
+        if (buttons[keys.indexOf("operator right_bumper")]) {
+            clawOpen = true;
+            target_positions[dc_motor_names.size() + servo_names.indexOf("claw")] = CLAW_OPEN;
+        }
+        if (buttons[keys.indexOf("operator left_bumper")]) {
+            clawOpen = false;
+            target_positions[dc_motor_names.size() + servo_names.indexOf("claw")] = CLAW_CLOSE;
+        }
+
+        ty += axes[keys.indexOf("operator left_stick_y")-20] * CLAW_ALIGNER_INCREMENTER * time_difference;
+        tx += axes[keys.indexOf("operator left_stick_x")-20] * CLAW_ALIGNER_INCREMENTER * time_difference;
 
         time_difference = System.currentTimeMillis();
 
@@ -49,7 +62,7 @@ class TeleOp202Logic extends Logic_Base {
         } else {
             tx = Math.sqrt(4 - ty * ty);
         }
-        
+
         if (tx <= 0.001) tx = 0.001;
 
         if (buttons[keys.indexOf("driver y")]) {
@@ -60,8 +73,8 @@ class TeleOp202Logic extends Logic_Base {
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
         if (magnitude > 2) {
-            tx = xbefor;
-            ty = ybefor;
+            tx = xbefore;
+            ty = ybefore;
             magnitude = Math.sqrt(tx * tx + ty * ty);
         }
 
@@ -69,9 +82,11 @@ class TeleOp202Logic extends Logic_Base {
         double tangle1 = Math.PI + Math.atan(ty / tx) - tangle2 / 2.0; //0 means straight down
         double tangle3 = Math.PI / 2.0 - tangle2 - tangle1;
 
+        // removing the initial angle
         tangle1 -= z1;
         tangle2 -= z2;
 
+        // converting to encoder ticks
         tangle1 *= tpr;
         tangle2 *= tpr;
 
@@ -81,17 +96,22 @@ class TeleOp202Logic extends Logic_Base {
 
         target_positions[1] = tangle2;
 
+        if (buttons[keys.indexOf("operator left_trigger")]) {
+            target_positions[2]+= CLAW_ALIGNER_INCREMENTER;
+        }
+        if (buttons[keys.indexOf("operator right_trigger")]) {
+            target_positions[2]-= CLAW_ALIGNER_INCREMENTER;
+        }
+
         robot.telemetry.addData("targetx", tx);
         robot.telemetry.addData("targety", ty);
-        //target_positions[2] = tangle3 / 2.0 / Math.PI;
         robot.telemetry.addData("clawAligner", target_positions[2]);
-        robot.telemetry.addData("target position", 1000 + 300 * rand.nextDouble());
-        //set the servo to be the arm position
 
         robot.telemetry.update();
         if (useRoadRunner) {
             position_tracker.update();
         }
+
     }
 
     //Initialization
@@ -110,17 +130,13 @@ class TeleOp202Logic extends Logic_Base {
         initializeRoadRunner(45, 100, 90, localizer);
     }
 
-    public void set_keybinds() {
-
-        //new_keybind("claw", "driver a", "cycle", 1, new double[] {0.0, 1.0});
-        new_keybind("clawAligner", "driver a", "default", 0.2, "it's great to be a michigan wolverine");
-        new_keybind("clawAligner", "driver b", "default", -0.2, "it's great to be a michigan wolverine");
+    public void setKeybinds() {
 
     }
 
     public TeleOp202Logic(RobotHardware r) {
         super(r);
-        set_keybinds();
+        setKeybinds();
         set_button_types();
     }
 }
