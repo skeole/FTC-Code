@@ -34,13 +34,13 @@ class TeleOp202Logic extends Logic_Base {
         double ybefore = ty;
 
         time_difference = System.currentTimeMillis() - time_difference;
-        if (buttons[keys.indexOf("driver dpad_up")])
+        if (buttons[keys.indexOf("operator dpad_up")])
             ty += time_difference * 0.002;
-        if (buttons[keys.indexOf("driver dpad_down")])
+        if (buttons[keys.indexOf("operator dpad_down")])
             ty -= time_difference * 0.002;
-        if (buttons[keys.indexOf("driver dpad_right")])
+        if (buttons[keys.indexOf("operator dpad_right")])
             tx += time_difference * 0.002;
-        if (buttons[keys.indexOf("driver dpad_left")])
+        if (buttons[keys.indexOf("operator dpad_left")])
             tx -= time_difference * 0.002;
         if (buttons[keys.indexOf("operator right_bumper")]) {
             clawOpen = true;
@@ -51,21 +51,21 @@ class TeleOp202Logic extends Logic_Base {
             target_positions[dc_motor_names.size() + servo_names.indexOf("claw")] = CLAW_CLOSE;
         }
 
-        ty += axes[keys.indexOf("operator left_stick_y")-20] * CLAW_ALIGNER_INCREMENTER * time_difference;
-        tx += axes[keys.indexOf("operator left_stick_x")-20] * CLAW_ALIGNER_INCREMENTER * time_difference;
+        ty += axes[(keys.indexOf("operator left_stick_y")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
+        tx += axes[(keys.indexOf("operator left_stick_x")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
 
         time_difference = System.currentTimeMillis();
 
         if (ty < Math.sqrt(3)) {
             tx = 1;
-            if (ty < -1) ty = -1;
+            if (ty < -1.2) ty = -1.2;
         } else {
             tx = Math.sqrt(4 - ty * ty);
         }
 
         if (tx <= 0.001) tx = 0.001;
 
-        if (buttons[keys.indexOf("driver y")]) {
+        if (buttons[keys.indexOf("operator y")]) {
             tx = 1;
             ty = 1.7;
         }
@@ -96,11 +96,11 @@ class TeleOp202Logic extends Logic_Base {
 
         target_positions[1] = tangle2;
 
-        if (buttons[keys.indexOf("operator left_trigger")]) {
-            target_positions[2]+= CLAW_ALIGNER_INCREMENTER;
+        if (axes[keys.indexOf("operator left_trigger")-20] > 0.1) {
+            target_positions[2]+= axes[keys.indexOf("operator left_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
         }
-        if (buttons[keys.indexOf("operator right_trigger")]) {
-            target_positions[2]-= CLAW_ALIGNER_INCREMENTER;
+        if (axes[keys.indexOf("operator right_trigger")-20] >0.1) {
+            target_positions[2]-= axes[keys.indexOf("operator right_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
         }
 
         robot.telemetry.addData("targetx", tx);
@@ -119,10 +119,15 @@ class TeleOp202Logic extends Logic_Base {
     public void init() {
         setZeroAngle(0);
         dc = robot.map.get(DcMotor.class, "joint1left");
-        button_types[keys.indexOf("driver dpad_up")] = "default";
-        button_types[keys.indexOf("driver dpad_down")] = "default";
-        button_types[keys.indexOf("driver dpad_right")] = "default";
-        button_types[keys.indexOf("driver dpad_left")] = "default";
+        try {
+            button_types[keys.indexOf("driver dpad_up")] = "default";
+            button_types[keys.indexOf("driver dpad_down")] = "default";
+            button_types[keys.indexOf("driver dpad_right")] = "default";
+            button_types[keys.indexOf("driver dpad_left")] = "default";
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("it was in the init of logic");
+        }
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
