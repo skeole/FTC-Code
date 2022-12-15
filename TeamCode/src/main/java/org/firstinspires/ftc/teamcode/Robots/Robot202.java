@@ -35,9 +35,9 @@ public interface Robot202 {
     ArrayList<String> led_names = new ArrayList<>(Arrays.asList());
 
     //Driving
-    double strafe = 0.0;
-    double turning_weight = 0.0;
-    double distance_weight = 0.0;
+    double strafe = -1.0;
+    double turning_weight = -1.0;
+    double distance_weight = -1.0;
     double distance_weight_two = 0.0;
 
     boolean locked_motion = true;
