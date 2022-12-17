@@ -11,18 +11,18 @@ public interface Robot202 {
     //Robot Hardware
 
     ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("joint1right", "joint2"));
-    double[] max_power = {0.1256486834658387658, 0.4};
+    double[] max_power = {.3, 0.4};
     double[] min_power = {-0.5, -0.4};
     double[] motor_max_positions = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
     double[] motor_min_positions = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
     boolean[] invert_dc_motors = {false, false};
-    double[] p_weights = {0.02, 0.02};
+    double[] p_weights = {0.06, 0.025};
 
     ArrayList<String> servo_names = new ArrayList<>(Arrays.asList( ));
     double[] servo_max_positions = {1.0, 1.0};
     double[] servo_min_positions = {0, 0};
 
-    ArrayList<String> cr_servo_names = new ArrayList<String>(Arrays.asList());
+    ArrayList<String> cr_servo_names = new ArrayList<>(Arrays.asList());
     boolean[] invert_cr_servos = {};
 
     ArrayList<String> distance_sensor_names = new ArrayList<>(Arrays.asList());

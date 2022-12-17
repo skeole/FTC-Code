@@ -86,5 +86,6 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
-# DS_Store
-**/.DS_Store
+
+# stupid mac stuff 
+**/*.DS_Store

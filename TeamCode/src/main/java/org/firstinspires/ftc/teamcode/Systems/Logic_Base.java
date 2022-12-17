@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Systems;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Robot;
 
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import java.util.Map;
 public class Logic_Base implements Robot {
 
     public RobotHardware robot;
-    public StandardTrackingWheelLocalizer position_tracker;
 
     public HashMap<String, ArrayList<Object>> keybinds = new HashMap<>();
     public String[] button_types = new String[27];
@@ -306,22 +303,26 @@ public class Logic_Base implements Robot {
     public void drive(Gamepad gamepad) {
         double speedFactor = 1 + 2 * gamepad.right_trigger;
 
-        double left_stick_magnitude = Math.sqrt(gamepad.left_stick_x * gamepad.left_stick_x + gamepad.left_stick_y * gamepad.left_stick_y);
+        float left_stick_x = gamepad.left_stick_y;
+        float left_stick_y = gamepad.left_stick_x;
+        double left_stick_magnitude = Math.sqrt(left_stick_x * left_stick_x + left_stick_y * left_stick_y);
         if (left_stick_magnitude <= 0.333) left_stick_magnitude = 0.0;
         double left_stick_angle =
                 (left_stick_magnitude <= 0.333) ? -Math.PI / 2.0 :
-                (gamepad.left_stick_x > 0) ? Math.atan(gamepad.left_stick_y/gamepad.left_stick_x) :
-                (gamepad.left_stick_x < 0) ? Math.PI + Math.atan(gamepad.left_stick_y/gamepad.left_stick_x) :
-                (gamepad.left_stick_y > 0) ? Math.PI / 2.0 : -Math.PI / 2.0;
+                (left_stick_x > 0) ? Math.atan(left_stick_y / left_stick_x) :
+                (left_stick_x < 0) ? Math.PI + Math.atan(left_stick_y / left_stick_x) :
+                (left_stick_y > 0) ? Math.PI / 2.0 : -Math.PI / 2.0;
         left_stick_angle += Math.PI/2.0;
-        
-        double right_stick_magnitude = Math.sqrt(gamepad.right_stick_x * gamepad.right_stick_x + gamepad.right_stick_y * gamepad.right_stick_y);
+
+        float right_stick_x = -gamepad.right_stick_x;
+        float right_stick_y =gamepad.right_stick_y;
+        double right_stick_magnitude = Math.sqrt(right_stick_x * right_stick_x + right_stick_y * right_stick_y);
         if (right_stick_magnitude <= 0.333) right_stick_magnitude = 0.0;
         double right_stick_angle =
                 (right_stick_magnitude <= 0.333) ? -Math.PI / 2.0 :
-                (gamepad.right_stick_x > 0) ? Math.atan(gamepad.right_stick_y/gamepad.right_stick_x) :
-                (gamepad.right_stick_x < 0) ? Math.PI + Math.atan(gamepad.right_stick_y/gamepad.right_stick_x) :
-                (gamepad.right_stick_y > 0) ? Math.PI / 2.0 : -Math.PI / 2.0;
+                (right_stick_x > 0) ? Math.atan(right_stick_y / right_stick_x) :
+                (right_stick_x < 0) ? Math.PI + Math.atan(right_stick_y / right_stick_x) :
+                (right_stick_y > 0) ? Math.PI / 2.0 : -Math.PI / 2.0;
         right_stick_angle += Math.PI/2.0;
 
         left_stick_angle = modifiedAngle(left_stick_angle);
@@ -332,15 +333,7 @@ public class Logic_Base implements Robot {
 
         if (usePID) {
             current_angle = 0 - robot.getAngle() - zero_angle;
-        } else if (useRoadRunner) {
-            position_tracker.update();
-            Pose2d currentPose = position_tracker.getPoseEstimate();
-
-            current_x = currentPose.getX();
-            current_y = currentPose.getY();
-            
-            current_angle = 0 - currentPose.getHeading() - zero_angle;
-        } //current_angle: same angle system as left/right stick angle
+        }
 
         double distance_factor;
         double offset;
@@ -379,7 +372,7 @@ public class Logic_Base implements Robot {
                 target_angle = right_stick_angle;
             } else { //if we're driving normally
                 target_angle = current_angle;
-                turning_factor = gamepad.right_stick_x;
+                turning_factor = right_stick_x;
             }
         } //target angle remains constant if we aren't turning manually
 
@@ -531,29 +524,11 @@ public class Logic_Base implements Robot {
         }
     }
 
-    public void resetZeroAngle() {
-        if (useRoadRunner) {
-            zero_angle = 0 - position_tracker.getPoseEstimate().getHeading();
-        } else if (usePID) {
-            zero_angle = 0 - robot.getAngle();
-        }
-    }
 
     public void setZeroAngle(double angle) {
         zero_angle = 0 - Math.toRadians(angle);
     }
 
-    public void initializeRoadRunner(double x, double y, double angle, StandardTrackingWheelLocalizer localizer) {
-        position_tracker = localizer;
-        position_tracker.setPoseEstimate(new Pose2d(x, y, Math.toRadians(angle)));
-        current_x = x;
-        current_y = y;
-        current_angle = Math.toRadians(angle);
-        target_x = x;
-        target_y = y;
-        target_angle = Math.toRadians(angle);
-        zero_angle -= Math.toRadians(angle);
-    }
 
     //RoadRunner
 

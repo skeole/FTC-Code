@@ -5,17 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
 class TeleOp202Logic extends Logic_Base {
 
     double time_difference = System.currentTimeMillis();
-    double tx = 2.0;
-    double ty = 0.0;
-
-    boolean clawOpen = false;
+    double tx = 1.7;
+    double ty = 1.0;
 
     Servo claw = null;
     Servo clawAligner= null;
@@ -47,7 +44,6 @@ class TeleOp202Logic extends Logic_Base {
         if (buttons[keys.indexOf("operator dpad_left")])
             tx -= time_difference * 0.002;
         if (buttons[keys.indexOf("operator right_bumper")]) {
-            clawOpen = true;
             claw.setPosition(CLAW_OPEN);
         }
         if (buttons[keys.indexOf("operator left_bumper")]) {
@@ -82,10 +78,9 @@ class TeleOp202Logic extends Logic_Base {
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
         if (magnitude > 2) {
-            double ong = 1.995 / magnitude;
-            double ratio = ong;
+            double ratio =  1.995 / magnitude;
             tx *= ratio;
-            ty *= ong;
+            ty *= ratio;
             magnitude = Math.sqrt(tx * tx + ty * ty);
         }
 
@@ -108,12 +103,11 @@ class TeleOp202Logic extends Logic_Base {
         target_positions[1] = tangle2;
 
         if (axes[keys.indexOf("operator left_trigger")-20] > 0.1) {
-            double pos = clawAligner.getPosition()+  axes[keys.indexOf("operator right_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
-            clawAligner.setPosition(pos >1? 1 : pos );
+            clawAligner.setPosition(clawAligner.getPosition() +.005 );
         }
         if (axes[keys.indexOf("operator right_trigger")-20] >0.1) {
-            double pos = clawAligner.getPosition()-  axes[keys.indexOf("operator right_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
-            clawAligner.setPosition(pos <0 ? 0 : pos );
+            clawAligner.setPosition(clawAligner.getPosition() -.005 );
+
         }
 
         robot.telemetry.addData("targetx", tx);
@@ -127,15 +121,15 @@ class TeleOp202Logic extends Logic_Base {
         robot.telemetry.addData("power", robot.wheel_list[2].getPower());
         robot.telemetry.addData("power", robot.wheel_list[3].getPower());
 
+        robot.telemetry.addData("clawAligner", clawAligner.getPosition());
+
         robot.telemetry.update();
-        if (useRoadRunner) {
-            position_tracker.update();
-        }
+
 
     }
 
     public void init() {
-        setZeroAngle(90);
+        setZeroAngle(0);
         dc = robot.map.get(DcMotor.class, "joint1left");
         try {
             button_types[keys.indexOf("driver dpad_up")] = "default";
@@ -148,12 +142,11 @@ class TeleOp202Logic extends Logic_Base {
         }
         claw = robot.map.get(Servo.class, "claw");
         clawAligner = robot.map.get(Servo.class, "clawAligner");
+
+        claw.setPosition(CLAW_OPEN);
+        clawAligner.setPosition(0.5);
     }
 
-    public void init(StandardTrackingWheelLocalizer localizer) {
-        init();
-        initializeRoadRunner(45, 100, 90, localizer);
-    }
 
     public void setKeybinds() {
 
@@ -175,8 +168,7 @@ public class TeleOp202 extends LinearOpMode {
         robot.init(hardwareMap, telemetry);
         waitForStart();
         if (logic.useRoadRunner) {
-            StandardTrackingWheelLocalizer localizer = new StandardTrackingWheelLocalizer(hardwareMap);
-            logic.init(localizer);
+
         } else {
             logic.init();
         }
