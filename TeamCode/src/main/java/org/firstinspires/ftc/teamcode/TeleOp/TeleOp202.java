@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
@@ -15,6 +16,8 @@ class TeleOp202Logic extends Logic_Base {
     double ty = 0.0;
 
     boolean clawOpen = false;
+
+    Servo claw = null;
 
     static double CLAW_OPEN = 1;
     static double CLAW_CLOSE = 0;
@@ -44,11 +47,12 @@ class TeleOp202Logic extends Logic_Base {
             tx -= time_difference * 0.002;
         if (buttons[keys.indexOf("operator right_bumper")]) {
             clawOpen = true;
-            target_positions[dc_motor_names.size() + servo_names.indexOf("claw")] = CLAW_OPEN;
+            claw.setPosition(CLAW_OPEN);
         }
         if (buttons[keys.indexOf("operator left_bumper")]) {
-            clawOpen = false;
-            target_positions[dc_motor_names.size() + servo_names.indexOf("claw")] = CLAW_CLOSE;
+            claw.setPosition(CLAW_CLOSE);
+
+
         }
 
         ty += axes[(keys.indexOf("operator left_stick_y")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
@@ -140,6 +144,8 @@ class TeleOp202Logic extends Logic_Base {
             throw new IllegalArgumentException("it was in the init of logic");
         }
         target_positions[2] = 0.5;
+
+        claw = robot.map.get(Servo.class, "claw");
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
