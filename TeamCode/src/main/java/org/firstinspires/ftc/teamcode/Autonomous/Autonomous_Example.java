@@ -120,7 +120,7 @@ public class Autonomous_Example extends LinearOpMode {
             idle();
         }
 
-        throw new IllegalArgumentException("lol");
+        throw new IllegalArgumentException("lol"); //modicum of tomfoolery
         //a.quit();
         //stop();
     }

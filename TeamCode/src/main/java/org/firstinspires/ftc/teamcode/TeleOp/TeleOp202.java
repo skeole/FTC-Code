@@ -19,10 +19,10 @@ class TeleOp202Logic extends Logic_Base {
     static double CLAW_OPEN = 1;
     static double CLAW_CLOSE = 0;
 
-    double CLAW_ALIGNER_INCREMENTER=0.01;
+    double CLAW_ALIGNER_INCREMENTER=0.004;
 
-    double z1 = Math.PI / 180.0 * 5; 
-    double z2 = Math.PI / 180.0 * 354; 
+    double z1 = Math.PI / 180.0 *24.5;
+    double z2 = Math.PI / 180.0 * 348;
 
     double tpr = 2786.2109868741 / 2.0 / Math.PI;
 
@@ -54,27 +54,35 @@ class TeleOp202Logic extends Logic_Base {
         ty += axes[(keys.indexOf("operator left_stick_y")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
         tx += axes[(keys.indexOf("operator left_stick_x")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
 
-        time_difference = System.currentTimeMillis();
-
-        if (ty < Math.sqrt(3)) {
-            tx = 1;
-            if (ty < -1.2) ty = -1.2;
-        } else {
-            tx = Math.sqrt(4 - ty * ty);
-        }
-
-        if (tx <= 0.001) tx = 0.001;
 
         if (buttons[keys.indexOf("operator y")]) {
             tx = 1;
             ty = 1.7;
         }
 
+        if (buttons[keys.indexOf("operator x")]) {
+            ty = -1.2;
+            tx = 1.2;
+        }
+        if (buttons[keys.indexOf("operator a")]) {
+            ty = 1.8;
+            tx = 0.8;
+        }
+
+
+        time_difference = System.currentTimeMillis();
+
+        if (ty >= 2) ty = 2;
+        if (tx >= 2) tx = 2;
+        if (ty < -1.2) ty = -1.2;
+        if (tx < 0.5) tx = 0.5;
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
         if (magnitude > 2) {
-            tx = xbefore;
-            ty = ybefore;
+            double ong = 1.995 / magnitude;
+            double ratio = ong;
+            tx *= ratio;
+            ty *= ong;
             magnitude = Math.sqrt(tx * tx + ty * ty);
         }
 
@@ -107,14 +115,17 @@ class TeleOp202Logic extends Logic_Base {
         robot.telemetry.addData("targety", ty);
         robot.telemetry.addData("clawAligner", target_positions[2]);
 
+        robot.telemetry.addData("power", robot.wheel_list[0].getPower());
+        robot.telemetry.addData("power", robot.wheel_list[1].getPower());
+        robot.telemetry.addData("power", robot.wheel_list[2].getPower());
+        robot.telemetry.addData("power", robot.wheel_list[3].getPower());
+
         robot.telemetry.update();
         if (useRoadRunner) {
             position_tracker.update();
         }
 
     }
-
-    //Initialization
 
     public void init() {
         setZeroAngle(0);
@@ -128,6 +139,7 @@ class TeleOp202Logic extends Logic_Base {
         catch (Exception e) {
             throw new IllegalArgumentException("it was in the init of logic");
         }
+        target_positions[2] = 0.5;
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
