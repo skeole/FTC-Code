@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Systems;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,15 +13,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Robot;
 
 public class RobotHardware implements Robot {
-
-    public BNO055IMU imu;
 
     public HardwareMap map;
     public Telemetry telemetry;
@@ -37,25 +29,10 @@ public class RobotHardware implements Robot {
     public TouchSensor[] touch_sensor_list = new TouchSensor[touch_sensor_names.size()];
     public ColorSensor[] color_sensor_list = new ColorSensor[color_sensor_names.size()];
     public RevBlinkinLedDriver[] led_list = new RevBlinkinLedDriver[led_names.size()];
-    
-    double imu_zero;
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
-        imu_zero = imu.getAngularOrientation(AxesReference.INTRINSIC, axesOrder, AngleUnit.RADIANS).firstAngle;
 
         for (int i = 0; i < wheel_list.length; i++) {
             wheel_list[i] = hardwareMap.get(DcMotor.class, wheel_names.get(i));
@@ -99,8 +76,8 @@ public class RobotHardware implements Robot {
 
     //IMU Stuff
     public double getAngle() {
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, axesOrder, AngleUnit.RADIANS);
-        return (angles.firstAngle - imu_zero) * (invertIMU ? -1 : 1);
+
+        return 0;
     }
 
     public void turnDegree(double degrees) {
@@ -147,10 +124,6 @@ public class RobotHardware implements Robot {
         servo_list[servo_names.indexOf(name)].setPosition(position);
     }
 
-    //Distance Sensor
-    public double getDistInch(String name){
-        return distance_sensor_list[distance_sensor_names.indexOf(name)].getDistance(DistanceUnit.INCH);
-    }
 
     //Touch Sensor
     public boolean touchSensorTouching(String name) {

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robots;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -40,15 +39,14 @@ public interface Robot202 {
     double distance_weight = -1.0;
     double distance_weight_two = 0.0;
 
-    boolean locked_motion = true;
+    boolean locked_motion = false;
     boolean locked_rotation = false;
 
     //PID
-    boolean usePID = true;
+    boolean usePID = false;
     double p_weight = 0.025; // 0.025
     double d_weight = 0; // 0.085
 
-    AxesOrder axesOrder = AxesOrder.YXZ;
     boolean invertIMU = false;
 
     //Road Runner
