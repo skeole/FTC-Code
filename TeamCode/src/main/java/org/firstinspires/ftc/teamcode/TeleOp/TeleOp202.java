@@ -18,6 +18,7 @@ class TeleOp202Logic extends Logic_Base {
     boolean clawOpen = false;
 
     Servo claw = null;
+    Servo clawAligner= null;
 
     static double CLAW_OPEN = 1;
     static double CLAW_CLOSE = 0;
@@ -51,8 +52,6 @@ class TeleOp202Logic extends Logic_Base {
         }
         if (buttons[keys.indexOf("operator left_bumper")]) {
             claw.setPosition(CLAW_CLOSE);
-
-
         }
 
         ty += axes[(keys.indexOf("operator left_stick_y")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
@@ -109,15 +108,19 @@ class TeleOp202Logic extends Logic_Base {
         target_positions[1] = tangle2;
 
         if (axes[keys.indexOf("operator left_trigger")-20] > 0.1) {
-            target_positions[2]+= axes[keys.indexOf("operator left_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
+            double pos = clawAligner.getPosition()+  axes[keys.indexOf("operator right_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
+            clawAligner.setPosition(pos >1? 1 : pos );
         }
         if (axes[keys.indexOf("operator right_trigger")-20] >0.1) {
-            target_positions[2]-= axes[keys.indexOf("operator right_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
+            double pos = clawAligner.getPosition()-  axes[keys.indexOf("operator right_trigger")-20] * CLAW_ALIGNER_INCREMENTER;
+            clawAligner.setPosition(pos <0 ? 0 : pos );
         }
 
         robot.telemetry.addData("targetx", tx);
         robot.telemetry.addData("targety", ty);
-        robot.telemetry.addData("clawAligner", target_positions[2]);
+
+        robot.telemetry.addData( "op rt",axes[keys.indexOf("operator right_trigger")-20] );
+                robot.telemetry.addData("op lt",axes[keys.indexOf("operator left_trigger")-20]);
 
         robot.telemetry.addData("power", robot.wheel_list[0].getPower());
         robot.telemetry.addData("power", robot.wheel_list[1].getPower());
@@ -132,7 +135,7 @@ class TeleOp202Logic extends Logic_Base {
     }
 
     public void init() {
-        setZeroAngle(0);
+        setZeroAngle(90);
         dc = robot.map.get(DcMotor.class, "joint1left");
         try {
             button_types[keys.indexOf("driver dpad_up")] = "default";
@@ -143,9 +146,8 @@ class TeleOp202Logic extends Logic_Base {
         catch (Exception e) {
             throw new IllegalArgumentException("it was in the init of logic");
         }
-        target_positions[2] = 0.5;
-
         claw = robot.map.get(Servo.class, "claw");
+        clawAligner = robot.map.get(Servo.class, "clawAligner");
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {

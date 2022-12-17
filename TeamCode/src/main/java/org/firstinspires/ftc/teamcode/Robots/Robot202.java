@@ -18,7 +18,7 @@ public interface Robot202 {
     boolean[] invert_dc_motors = {false, false};
     double[] p_weights = {0.02, 0.02};
 
-    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList( "claw", "clawAligner"));
+    ArrayList<String> servo_names = new ArrayList<>(Arrays.asList( ));
     double[] servo_max_positions = {1.0, 1.0};
     double[] servo_min_positions = {0, 0};
 
