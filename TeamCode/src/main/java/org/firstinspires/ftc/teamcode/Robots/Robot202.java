@@ -38,33 +38,6 @@ public interface Robot202 {
     double strafe = 1.0;
     double turning_weight = 1.0;
     double distance_weight = 1.0;
-    double distance_weight_two = 0.0;
-
-    boolean locked_motion = true;
-    boolean locked_rotation = false;
-
-    //PID
-    boolean usePID = true;
-    double p_weight = 0.025; // 0.025
-    double d_weight = 0; // 0.085
-
-    AxesOrder axesOrder = AxesOrder.YXZ;
-    boolean invertIMU = false;
-
-    //Road Runner
-    boolean useRoadRunner = false;
-    double ticks_per_revolution = 0.0;
-    double wheel_radius = 0.0;
-    double gear_ratio = 0.0;
-    double lateral_distance = 0.0;
-    double forward_offset = 4.0;
-    boolean integer_overflow = false;
-    boolean[] invert_encoders = {false, false, false};
-
-    //Road Runner Tuning
-    double forward_multiplier = 1.0;
-    double strafing_multiplier = 1.0;
-    double turning_multiplier = 1.0;
 
     //Tensorflow
     String VUFORIA_KEY =
@@ -81,8 +54,6 @@ public interface Robot202 {
             "2 Bulb",
             "3 Panel"
     };
-
-    ArrayList<String> encoderNames = new ArrayList<>(Arrays.asList("leftEncoder", "rightEncoder", "frontEncoder"));
 
     ArrayList<String> wheel_names = new ArrayList<>(Arrays.asList("rightFront", "rightBack", "leftBack", "leftFront"));
 

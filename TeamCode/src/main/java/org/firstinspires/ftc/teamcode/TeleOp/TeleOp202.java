@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
@@ -26,10 +25,8 @@ class TeleOp202Logic extends Logic_Base {
 
     public void execute_non_driver_controlled() {
 
-        if (rand.nextDouble() > 1.2) throw new IllegalArgumentException("Sorry, that action is not allowed");
-
-        double xbefor = tx;
-        double ybefor = ty;
+        double xbefore = tx;
+        double ybefore = ty;
 
         time_difference = System.currentTimeMillis() - time_difference;
         if (buttons[keys.indexOf("driver dpad_up")])
@@ -49,8 +46,8 @@ class TeleOp202Logic extends Logic_Base {
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
         if (magnitude > 2) {
-            tx = xbefor;
-            ty = ybefor;
+            tx = xbefore;
+            ty = ybefore;
             magnitude = Math.sqrt(tx * tx + ty * ty);
         }
 
@@ -72,31 +69,18 @@ class TeleOp202Logic extends Logic_Base {
 
         robot.telemetry.addData("targetx", tx);
         robot.telemetry.addData("targety", ty);
-        //target_positions[2] = tangle3 / 2.0 / Math.PI;
         robot.telemetry.addData("clawAligner", target_positions[2]);
         robot.telemetry.addData("target position", 1000 + 300 * rand.nextDouble());
-        //set the servo to be the arm position
 
         robot.telemetry.update();
-        if (useRoadRunner) {
-            position_tracker.update();
-        }
     }
 
-    //Initialization
-
     public void init() {
-        setZeroAngle(0);
         dc = robot.map.get(DcMotor.class, "joint1left");
         button_types[keys.indexOf("driver dpad_up")] = "default";
         button_types[keys.indexOf("driver dpad_down")] = "default";
         button_types[keys.indexOf("driver dpad_right")] = "default";
         button_types[keys.indexOf("driver dpad_left")] = "default";
-    }
-
-    public void init(StandardTrackingWheelLocalizer localizer) {
-        init();
-        initializeRoadRunner(45, 100, 90, localizer);
     }
 
     public void set_keybinds() {
@@ -124,12 +108,7 @@ TeleOp202 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap, telemetry);
         waitForStart();
-        if (logic.useRoadRunner) {
-            StandardTrackingWheelLocalizer localizer = new StandardTrackingWheelLocalizer(hardwareMap);
-            logic.init(localizer);
-        } else {
             logic.init();
-        }
         while (opModeIsActive()) {
             logic.execute_controllers(gamepad1, gamepad2); //driver is gamepad1, operator is gamepad2
             logic.execute_non_driver_controlled();
