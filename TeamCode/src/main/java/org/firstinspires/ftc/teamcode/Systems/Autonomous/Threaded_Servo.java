@@ -3,12 +3,12 @@ package org.firstinspires.ftc.teamcode.Systems.Autonomous;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
-public class ThreadedServo extends Thread {
+public class Threaded_Servo extends Thread {
 
     Servo servo;
     double target_position;
 
-    public ThreadedServo(RobotHardware r, String servo_name) {
+    public Threaded_Servo(RobotHardware r, String servo_name) {
         servo = r.map.get(Servo.class, servo_name);
     }
 

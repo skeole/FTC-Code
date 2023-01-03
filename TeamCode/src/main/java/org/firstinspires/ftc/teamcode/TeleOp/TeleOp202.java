@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
+
+import java.util.Random;
 
 class TeleOp202Logic extends Logic_Base {
 
@@ -14,105 +16,87 @@ class TeleOp202Logic extends Logic_Base {
     double tx = 2.0;
     double ty = 0.0;
 
+    double z1 = Math.PI / 180.0 * 5; //around 7.5 degrees idk
+    double z2 = Math.PI / 180.0 * 354; //around 352 degrees idk
+
+    double tpr = 2786.2109868741 / 2.0 / Math.PI;
+
+    Random rand = new Random();
     DcMotor dc = null;
 
-    Servo claw = null;
-    Servo clawAligner= null;
-
     public void execute_non_driver_controlled() {
+
+        if (rand.nextDouble() > 1.2) throw new IllegalArgumentException("Sorry, that action is not allowed");
+
+        double xbefor = tx;
+        double ybefor = ty;
+
         time_difference = System.currentTimeMillis() - time_difference;
-        if (buttons[keys.indexOf("operator dpad_up")])
+        if (buttons[keys.indexOf("driver dpad_up")])
             ty += time_difference * 0.002;
-        if (buttons[keys.indexOf("operator dpad_down")])
+        if (buttons[keys.indexOf("driver dpad_down")])
             ty -= time_difference * 0.002;
-        if (buttons[keys.indexOf("operator dpad_right")])
+        if (buttons[keys.indexOf("driver dpad_right")])
             tx += time_difference * 0.002;
-        if (buttons[keys.indexOf("operator dpad_left")])
+        if (buttons[keys.indexOf("driver dpad_left")])
             tx -= time_difference * 0.002;
-        if (buttons[keys.indexOf("operator right_bumper")]) {
-            claw.setPosition(CLAW_OPEN);
-        }
-        if (buttons[keys.indexOf("operator left_bumper")]) {
-            claw.setPosition(CLAW_CLOSE);
-        }
-
-        ty += axes[(keys.indexOf("operator left_stick_y")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
-        tx += axes[(keys.indexOf("operator left_stick_x")-20)] * CLAW_ALIGNER_INCREMENTER * time_difference;
-
-        if (buttons[keys.indexOf("operator y")]) {
-            tx = 1;
-            ty = 1.7;
-        }
-
-        if (buttons[keys.indexOf("operator x")]) {
-            ty = -1.2;
-            tx = 1.2;
-        }
-        if (buttons[keys.indexOf("operator a")]) {
-            ty = 1.8;
-            tx = 0.8;
-        }
-
 
         time_difference = System.currentTimeMillis();
+        
+        if (tx <= 0.001) tx = 0.001;
+        if (ty < -1) ty = -1;
 
-        if (ty >= 2) ty = 2;
-        if (tx >= 2) tx = 2;
-        if (ty < -1.2) ty = -1.2;
-        if (tx < 0.5) tx = 0.5;
         double magnitude = Math.sqrt(tx * tx + ty * ty);
 
         if (magnitude > 2) {
-            double ratio =  1.995 / magnitude;
-            tx *= ratio;
-            ty *= ratio;
+            tx = xbefor;
+            ty = ybefor;
             magnitude = Math.sqrt(tx * tx + ty * ty);
         }
 
-        double TARGET_JOINT_2 = Math.acos(1 - magnitude * magnitude / 2.0); //180 means straight line
-        double TARGET_JOINT_1 = Math.PI + Math.atan(ty / tx) - TARGET_JOINT_2 / 2.0; //0 means straight down
-//        double TARGET_CLAW_ALIGNER = Math.PI / 2.0 - TARGET_JOINT_2 - TARGET_JOINT_1;
+        double tangle2 = Math.acos(1 - magnitude * magnitude / 2.0); //180 means straight line
+        double tangle1 = Math.PI + Math.atan(ty / tx) - tangle2 / 2.0; //0 means straight down
+        double tangle3 = Math.PI / 2.0 - tangle2 - tangle1;
 
-        // removing the initial angle
-        TARGET_JOINT_1 -= JOINT_1_INITIAL;
-        TARGET_JOINT_2 -= JOINT_2_INITIAL;
+        tangle1 -= z1;
+        tangle2 -= z2;
 
-        // converting to encoder ticks
-        TARGET_JOINT_1 *= TICKS_PER_RADIAN;
-        TARGET_JOINT_2 *= TICKS_PER_RADIAN;
+        tangle1 *= tpr;
+        tangle2 *= tpr;
 
-        target_positions[0] = 0 - TARGET_JOINT_1; //ticks per radian
+        target_positions[0] = 0 - tangle1; //ticks per radian
         dc.setPower(robot.dc_motor_list[0].getPower());
 
 
-        target_positions[1] = TARGET_JOINT_2;
+        target_positions[1] = tangle2;
 
-        if (axes[keys.indexOf("operator left_trigger")-20] > 0.1) {
-            clawAligner.setPosition(clawAligner.getPosition() +.005 );
-        }
-        if (axes[keys.indexOf("operator right_trigger")-20] >0.1) {
-            clawAligner.setPosition(clawAligner.getPosition() -.005 );
-
-        }
-
+        robot.telemetry.addData("targetx", tx);
+        robot.telemetry.addData("targety", ty);
+        //target_positions[2] = tangle3 / 2.0 / Math.PI;
+        robot.telemetry.addData("clawAligner", target_positions[2]);
+        robot.telemetry.addData("target position", 1000 + 300 * rand.nextDouble());
+        //set the servo to be the arm position
 
         robot.telemetry.update();
+        if (useRoadRunner) {
+            position_tracker.update();
+        }
     }
 
-    public void init() {
-        dc = robot.map.get(DcMotor.class, "joint1left");
+    //Initialization
 
+    public void init() {
+        setZeroAngle(0);
+        dc = robot.map.get(DcMotor.class, "joint1left");
         button_types[keys.indexOf("driver dpad_up")] = "default";
         button_types[keys.indexOf("driver dpad_down")] = "default";
         button_types[keys.indexOf("driver dpad_right")] = "default";
         button_types[keys.indexOf("driver dpad_left")] = "default";
+    }
 
-
-        claw = robot.map.get(Servo.class, "claw");
-        clawAligner = robot.map.get(Servo.class, "clawAligner");
-
-        claw.setPosition(CLAW_OPEN);
-        clawAligner.setPosition(0.5);
+    public void init(StandardTrackingWheelLocalizer localizer) {
+        init();
+        initializeRoadRunner(45, 100, 90, localizer);
     }
 
     public void set_keybinds() {
@@ -140,7 +124,12 @@ TeleOp202 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap, telemetry);
         waitForStart();
+        if (logic.useRoadRunner) {
+            StandardTrackingWheelLocalizer localizer = new StandardTrackingWheelLocalizer(hardwareMap);
+            logic.init(localizer);
+        } else {
             logic.init();
+        }
         while (opModeIsActive()) {
             logic.execute_controllers(gamepad1, gamepad2); //driver is gamepad1, operator is gamepad2
             logic.execute_non_driver_controlled();

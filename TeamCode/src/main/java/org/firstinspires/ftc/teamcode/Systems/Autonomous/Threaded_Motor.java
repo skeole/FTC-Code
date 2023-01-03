@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
-public class ThreadedMotor extends Thread {
+public class Threaded_Motor extends Thread {
 
     DcMotor motor;
     double min_power;
@@ -16,7 +16,7 @@ public class ThreadedMotor extends Thread {
     long delay = 0;
     long currentTime = System.nanoTime();
 
-    public ThreadedMotor(RobotHardware r, String motor_name) {
+    public Threaded_Motor(RobotHardware r, String motor_name) {
         motor = r.map.get(DcMotor.class, motor_name);
         min_power = r.min_power[r.dc_motor_names.indexOf(motor_name)];
         max_power = r.max_power[r.dc_motor_names.indexOf(motor_name)];
