@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.Systems;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Robot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Logic_Base implements Robot {
+public class Logic_Base implements Robot, Constants {
 
     public RobotHardware robot;
 
@@ -265,65 +266,76 @@ public class Logic_Base implements Robot {
     //Driving
 
     public void drive(Gamepad gamepad) {
-        double speedFactor = 1 + 2 * gamepad.right_trigger;
+        double LX = gamepad.left_stick_x;
+        double LY = -gamepad.left_stick_y;
+        double RX = gamepad.left_stick_x;
+        double RY = -gamepad.left_stick_y;
 
-        double left_stick_magnitude = Math.sqrt(gamepad.left_stick_x * gamepad.left_stick_x + gamepad.left_stick_y * gamepad.left_stick_y);
-        if (left_stick_magnitude <= 0.333) left_stick_magnitude = 0.0;
-        double left_stick_angle =
-                (left_stick_magnitude <= 0.333) ? -Math.PI / 2.0 :
-                (gamepad.left_stick_x > 0) ? Math.atan(gamepad.left_stick_y/gamepad.left_stick_x) :
-                (gamepad.left_stick_x < 0) ? Math.PI + Math.atan(gamepad.left_stick_y/gamepad.left_stick_x) :
-                (gamepad.left_stick_y > 0) ? Math.PI / 2.0 : -Math.PI / 2.0;
-        left_stick_angle += Math.PI/2.0;
-        
-        double right_stick_magnitude = Math.sqrt(gamepad.right_stick_x * gamepad.right_stick_x + gamepad.right_stick_y * gamepad.right_stick_y);
-        if (right_stick_magnitude <= 0.333) right_stick_magnitude = 0.0;
-        double right_stick_angle =
-                (right_stick_magnitude <= 0.333) ? -Math.PI / 2.0 :
-                (gamepad.right_stick_x > 0) ? Math.atan(gamepad.right_stick_y/gamepad.right_stick_x) :
-                (gamepad.right_stick_x < 0) ? Math.PI + Math.atan(gamepad.right_stick_y/gamepad.right_stick_x) :
-                (gamepad.right_stick_y > 0) ? Math.PI / 2.0 : -Math.PI / 2.0;
-        right_stick_angle += Math.PI/2.0;
+        double turnAmount = -gamepad.left_trigger*TRIGGER_SENSITIVITY + gamepad.right_trigger*TRIGGER_SENSITIVITY - ((gamepad.left_bumper) ? BUTTON_SENSITIVITY : 0) + (gamepad.right_bumper ? BUTTON_SENSITIVITY : 0);
 
-        left_stick_angle = modifiedAngle(left_stick_angle);
-        right_stick_angle = modifiedAngle(right_stick_angle);
+        double[] vec = {
+                LX*LEFT_SENSITIVITY + RX*RIGHT_SENSITIVITY,
+                LY*LEFT_SENSITIVITY + RY*RIGHT_SENSITIVITY
+        };
 
-        //Positive angles --> clockwise
-        //Zero --> vertical
-
-        double distance_factor;
-        double offset;
-
-        if (left_stick_magnitude != 0) {
-            distance_factor = left_stick_magnitude;
-            offset = left_stick_angle;
-
-        } else {
-
-            distance_factor = 0;
-            offset = 0;
-        }
-
-        double turning_factor = 0;
-
-        if (right_stick_magnitude != 0) {
-            turning_factor = gamepad.right_stick_x;
-        } //target angle remains constant if we aren't turning manually
-
-        drive(turning_factor, distance_factor, offset, speedFactor);
+        drive(vec, turnAmount);
     }
 
-    public void drive(double turning_factor, double distance_factor, double offset, double speedFactor) {
-        turning_factor *= turning_weight;
-        distance_factor *= distance_weight;
-        double[] power = new double[4];
-        for (int i = 0; i < 4; i++) {
-            power[i] = turning_factor * ((i > 1) ? -1 : 1) - distance_factor * (Math.cos(offset) + Math.sin(offset) * (i % 2 == 1 ? 1 : -1) / strafe);
+    /**
+     *
+     * @param vec array of len 2 of the vector that the drive is on. x and y must not be > 1. [x,y]
+     * @param turnAmount the power given to turning changes. left is negative
+     */
+    /**
+     *
+     * @param vec array of len 2 of the vector that the drive is on. x and y must not be > 1. [x,y]
+     * @param turnAmount the power given to turning changes. left is negative
+     */
+    public void drive( double[] vec, double turnAmount) {
+
+        if (vec.length !=2 ) {
+            throw new IllegalArgumentException("drive function vec len > 2");
         }
-        double maximum = Math.max(1, Math.max(Math.max(Math.abs(power[0]), Math.abs(power[1])), Math.max(Math.abs(power[2]), Math.abs(power[3]))));
-        for (int i = 0; i < 4; i++) {
-            robot.wheel_list[i].setPower(power[i] / maximum / speedFactor);
+
+        double x = vec[0];
+        double y = vec[1];
+
+        double[] powers = new double[4];
+
+        // rightFront
+        powers[0] = y-x;
+        // rightBack
+        powers[1] = y+x;
+        // leftBack
+        powers[2] = y-x;
+        // leftFront
+        powers[3] = y+x;
+
+        powers[0]-=turnAmount;
+        powers[1]-= turnAmount;
+        powers[2]+=turnAmount;
+        powers[3]+=turnAmount;
+
+        if (max(powers) > 1) {
+            double max = max(powers);
+            for (int i = 0; i < powers.length; i++) {
+                powers[i]/=max;
+            }
         }
+
+        for (int i =0; i<4; i++) robot.wheel_list[i].setPower(powers[i]);
+    }
+
+    /**
+     * finds the greatest absolute val in the arr
+     */
+    private double max(double[] arr) {
+        double max = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < arr.length; i++) {
+            max = Math.max(max, Math.abs( arr[i]));
+        }
+
+        return max;
     }
 
     public double modifiedAngle(double radians) {
@@ -335,8 +347,6 @@ public class Logic_Base implements Robot {
         }
         return radians;
     }
-
-    //Initialization
 
     public void new_keybind(String motor, String button, Object modifier1, Object modifier2, Object modifier3) {
         Object temp2;
