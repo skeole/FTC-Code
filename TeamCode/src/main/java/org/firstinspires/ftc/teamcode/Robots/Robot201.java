@@ -21,7 +21,7 @@ public interface Robot201 {
 
     ArrayList<String> dc_motor_names = new ArrayList<>(Arrays.asList("Left"));
     double[] max_power = {1.0};
-    double[] min_power = {-0.3};
+    double[] min_power = {0.05};
     double[] motor_max_positions = {Double.POSITIVE_INFINITY};
     double[] motor_min_positions = {Double.NEGATIVE_INFINITY};
     boolean[] invert_dc_motors = {false};
@@ -45,14 +45,15 @@ public interface Robot201 {
     //Driving
     double strafe = 0.8;
     double turning_weight = 1.0;
-    double distance_weight = 1.0;
+    double distance_weight = -1.0;
     double distance_weight_two = 1.0;
+    double max_driving_power = 0.6;
 
     boolean locked_motion = false; //MAKE THESE TRUE SOON PLS :)
     boolean locked_rotation = false;
 
     //PID
-    boolean usePID = true;
+    boolean usePID = false;
     double p_weight = 0; // 0.025
     double d_weight = 0; // 0.085
 

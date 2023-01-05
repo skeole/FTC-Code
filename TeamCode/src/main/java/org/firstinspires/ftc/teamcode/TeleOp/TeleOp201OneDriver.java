@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Systems.RoadRunner.StandardTrackingWheelLo
 import org.firstinspires.ftc.teamcode.Systems.Logic_Base;
 import org.firstinspires.ftc.teamcode.Systems.RobotHardware;
 
-class TeleOp201Logic extends Logic_Base {
+class TeleOp201OneDriverLogic extends Logic_Base {
 
     DcMotor rightDCM;
     Servo claw;
@@ -23,28 +23,26 @@ class TeleOp201Logic extends Logic_Base {
 
         robot.telemetry.addData("Angle?", robot.getAngle());
         robot.telemetry.addData("Angle V2", current_angle = 0 - robot.getAngle() - zero_angle); //Only different value if not starting robot straight ahead
-                                    //Positive = Rotated clockwise
+        //Positive = Rotated clockwise
 
         robot.telemetry.addData("Power", robot.dc_motor_list[0].getPower());
-        robot.telemetry.addData("Position (PRESET!!!)", robot.dc_motor_list[0].getCurrentPosition());
-
         robot.telemetry.addData("Servo Power?", robot.cr_servo_list[0].getPower());
 
         robot.telemetry.update();
 
         rightDCM.setPower(robot.dc_motor_list[0].getPower());
 
-        if (buttons[keys.indexOf("operator a")]) {
+        if (buttons[keys.indexOf("driver a")]) {
             lastpower = 0.6;
-        } else if (buttons[keys.indexOf("operator b")]) {
+        } else if (buttons[keys.indexOf("driver b")]) {
             lastpower = 0.2;
         }
 
-        if (buttons[keys.indexOf("operator right_bumper")]) {
+        if (buttons[keys.indexOf("driver right_bumper")]) {
             target_positions[0] = low;
-        } else if (axes[keys.indexOf("operator left_trigger") - 20] > 0.1) {
+        } else if (axes[keys.indexOf("driver left_trigger") - 20] > 0.1) {
             target_positions[0] = top;
-        } else if (buttons[keys.indexOf("operator left_bumper")]) {
+        } else if (buttons[keys.indexOf("driver left_bumper")]) {
             target_positions[0] = mid;
         }
 
@@ -62,9 +60,9 @@ class TeleOp201Logic extends Logic_Base {
         rightDCM = robot.map.get(DcMotor.class, "Right");
         rightDCM.setDirection(DcMotor.Direction.REVERSE);
         claw = robot.map.get(Servo.class, "Scissor");
-        button_types[keys.indexOf("operator right_bumper")] = "button";
-        button_types[keys.indexOf("operator left_bumper")] = "button";
-        button_types[keys.indexOf("operator left_trigger")] = "button";
+        button_types[keys.indexOf("driver right_bumper")] = "button";
+        button_types[keys.indexOf("driver left_bumper")] = "button";
+        button_types[keys.indexOf("driver left_trigger")] = "button";
     }
 
     public void init(StandardTrackingWheelLocalizer localizer) {
@@ -88,17 +86,17 @@ class TeleOp201Logic extends Logic_Base {
 
     }
 
-    public TeleOp201Logic(RobotHardware r) {
+    public TeleOp201OneDriverLogic(RobotHardware r) {
         super(r);
         set_keybinds();
         set_button_types();
     }
 }
 
-@TeleOp(name="TeleOp", group="Iterative Opmode")
-public class TeleOp201 extends LinearOpMode {
+@TeleOp(name="TeleOp One Driver", group="Iterative Opmode")
+public class TeleOp201OneDriver extends LinearOpMode {
     RobotHardware robot = new RobotHardware();
-    TeleOp201Logic logic = new TeleOp201Logic(robot);
+    TeleOp201OneDriverLogic logic = new TeleOp201OneDriverLogic(robot);
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap, telemetry);

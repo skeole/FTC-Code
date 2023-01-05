@@ -398,7 +398,7 @@ public class Logic_Base implements Robot {
         }
         double maximum = Math.max(1, Math.max(Math.max(Math.abs(power[0]), Math.abs(power[1])), Math.max(Math.abs(power[2]), Math.abs(power[3]))));
         for (int i = 0; i < 4; i++) {
-            robot.wheel_list[i].setPower(power[i] / maximum / speedFactor);
+            robot.wheel_list[i].setPower(max_driving_power * power[i] / maximum / speedFactor);
         }
     }
     
